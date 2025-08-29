@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Load Test</title>
+    <style>
+        body {
+            font-family: -apple-system, sans-serif;
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .drop-zone {
+            border: 2px dashed #ccc;
+            border-radius: 8px;
+            padding: 40px;
+            text-align: center;
+            margin: 20px 0;
+            background: #f5f5f5;
+            cursor: pointer;
+        }
+        .drop-zone.dragover {
+            background: #e0e0e0;
+            border-color: #999;
+        }
+        #log {
+            background: #f0f0f0;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 12px;
+            white-space: pre-wrap;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        #preview {
+            margin: 20px 0;
+            text-align: center;
+        }
+        #preview img {
+            max-width: 100%;
+            height: auto;
+            border: 1px solid #ddd;
+        }
+        .error { color: #d32f2f; }
+        .success { color: #388e3c; }
+        .info { color: #1976d2; }
+    </style>
+</head>
+<body>
+    <h1>画像読み込みテスト</h1>
+    
+    <div class="drop-zone" id="dropZone">
+        <p>ここに画像をドロップまたはクリックして選択</p>
+        <input type="file" id="fileInput" accept="image/*,.dng,.cr2,.cr3,.nef,.arw,.orf,.rw2,.raf,.pef,.srw,.x3f" style="display: none;">
+    </div>
+    
+    <div id="preview"></div>
+    
+    <h3>デバッグログ：</h3>
+    <div id="log"></div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/exifr/dist/full.umd.js"></script>
+    <script>
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('fileInput');
+        const preview = document.getElementById('preview');
+        const logDiv = document.getElementById('log');
+        
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const className = type;
+            logDiv.innerHTML += `<span class="${className}">[${timestamp}] ${message}</span>\n`;
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
+        
+        // File input
+        dropZone.addEventListener('click', () => {
+            fileInput.click();
+        });
+        
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                log(`ファイル選択: ${file.name} (${file.type}, ${(file.size / 1024 / 1024).toFixed(2)}MB)`);
+                handleFile(file);
+            }
+        });
+        
+        // Drag and drop
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('dragover');
+        });
+        
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.classList.remove('dragover');
+        });
+        
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('dragover');
+            
+            const file = e.dataTransfer.files[0];
+            if (file) {
+                log(`ドロップ: ${file.name} (${file.type}, ${(file.size / 1024 / 1024).toFixed(2)}MB)`);
+                handleFile(file);
+            }
+        });
+        
+        async function handleFile(file) {
+            preview.innerHTML = '';
+            
+            try {
+                // EXIF読み取りテスト
+                log('EXIF読み取り開始...', 'info');
+                const exifData = await window.exifr.parse(file);
+                
+                if (exifData) {
+                    log('EXIF読み取り成功', 'success');
+                    log('主要なEXIFデータ:', 'info');
+                    log(`  カメラ: ${exifData.Make || 'N/A'} ${exifData.Model || 'N/A'}`, 'info');
+                    log(`  レンズ: ${exifData.LensModel || 'N/A'}`, 'info');
+                    log(`  ISO: ${exifData.ISO || 'N/A'}`, 'info');
+                    log(`  絞り: f/${exifData.FNumber || 'N/A'}`, 'info');
+                    log(`  シャッター: ${exifData.ExposureTime || 'N/A'}秒`, 'info');
+                    log(`  撮影日時: ${exifData.DateTimeOriginal || 'N/A'}`, 'info');
+                } else {
+                    log('EXIFデータなし', 'error');
+                }
+                
+                // 画像表示テスト
+                log('画像読み込み開始...', 'info');
+                const reader = new FileReader();
+                
+                reader.onload = () => {
+                    log('FileReader読み込み完了', 'success');
+                    const img = new Image();
+                    
+                    img.onload = () => {
+                        log(`画像読み込み成功: ${img.width}x${img.height}px`, 'success');
+                        preview.innerHTML = `<img src="${img.src}" alt="Preview">`;
+                    };
+                    
+                    img.onerror = (e) => {
+                        log('画像読み込みエラー: ' + e, 'error');
+                    };
+                    
+                    img.src = reader.result;
+                };
+                
+                reader.onerror = (e) => {
+                    log('FileReaderエラー: ' + e, 'error');
+                };
+                
+                reader.readAsDataURL(file);
+                
+            } catch (error) {
+                log('エラー発生: ' + error.message, 'error');
+                console.error(error);
+            }
+        }
+        
+        // ライブラリ確認
+        if (window.exifr) {
+            log('exifrライブラリ読み込み成功', 'success');
+        } else {
+            log('exifrライブラリ読み込み失敗', 'error');
+        }
+    </script>
+</body>
+</html>

@@ -184,6 +184,14 @@ document.addEventListener('DOMContentLoaded', function() {
     initializeCheckboxes();
     initializeExportSettings();
     
+    // Debug: Check if elements are properly initialized
+    console.log('DOM elements check:', {
+        canvas: !!canvas,
+        dropZone: !!dropZone,
+        preview: !!preview,
+        fileInput: !!document.getElementById('fileInput')
+    });
+    
     // Initialize new editor controller
     editorController = new EditorController(state, (paramId) => {
         // Handle parameter changes
@@ -199,6 +207,11 @@ document.addEventListener('DOMContentLoaded', function() {
                    paramId === 'framePadding' || paramId === 'theme' || 
                    paramId === 'fontSize') {
             // Handle frame-related changes
+            render();
+        } else if (paramId === 'filmType' || paramId === 'filmStrength' || 
+                   paramId === 'dateStamp' || paramId === 'dateOpacity' || 
+                   paramId === 'dateBrightness' || paramId === 'dateBlur') {
+            // Handle film-related changes
             render();
         } else {
             render();
@@ -992,6 +1005,28 @@ function renderCanvas() {
             // Draw the filtered image back
             ctx.drawImage(tempCanvas, 0, 0, imageDrawW, imageDrawH, imagePad, imagePad, imageDrawW, imageDrawH);
             
+            // Apply grain effect for film simulation
+            if (filter.grain && filterName !== 'None') {
+                const grainIntensity = filter.grain * strength * 0.3; // Scale down grain intensity
+                
+                // Create grain data
+                const grainData = ctx.createImageData(imageDrawW, imageDrawH);
+                const data = grainData.data;
+                
+                for (let i = 0; i < data.length; i += 4) {
+                    const noise = (Math.random() - 0.5) * grainIntensity * 255;
+                    data[i] = noise;       // R
+                    data[i+1] = noise;     // G
+                    data[i+2] = noise;     // B
+                    data[i+3] = grainIntensity * 255; // A
+                }
+                
+                // Apply grain with overlay blend mode
+                ctx.globalCompositeOperation = 'overlay';
+                ctx.putImageData(grainData, imagePad, imagePad);
+                ctx.globalCompositeOperation = 'source-over';
+            }
+            
             ctx.restore();
         }
     }
@@ -1090,6 +1125,17 @@ function initializeFileHandling() {
             if (file) handleFile(file);
         });
         console.log('Event listener added to fileInput');
+    }
+    
+    // Add click event to dropZone
+    if (dropZone) {
+        dropZone.addEventListener('click', (e) => {
+            // Only trigger file input if clicking on the dropzone itself (not children)
+            if (e.target === dropZone || e.target.classList.contains('drop-zone-icon') || e.target.classList.contains('drop-zone-text')) {
+                console.log('Dropzone clicked, triggering file input');
+                if (fileInput) fileInput.click();
+            }
+        });
     }
     
     // Also create a picker for the upload button

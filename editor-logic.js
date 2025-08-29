@@ -1,5 +1,7 @@
 // Editor Logic - Business logic for the editor, no DOM manipulation
 
+import { FILM_FILTERS } from './filmFilters.js';
+
 export class EditorLogic {
     constructor(state) {
         this.state = state;
@@ -176,7 +178,7 @@ export class EditorLogic {
             case 'fontSize': return this.state.fontScale * 100;
             case 'filmType': return this.state.filmType || 0;
             case 'filmStrength': return this.state.filmStrength || 70;
-            case 'dateStamp': return this.state.showFilmDate || false;
+            case 'dateStamp': return this.state.dateStamp || false;
             case 'dateOpacity': return this.state.dateOpacity;
             case 'dateBrightness': return this.state.dateBrightness;
             case 'dateBlur': return this.state.dateBlur;
@@ -234,7 +236,7 @@ export class EditorLogic {
                 this.state.filmStrength = value;
                 break;
             case 'dateStamp':
-                this.state.showFilmDate = value;
+                this.state.dateStamp = value;
                 break;
             case 'dateOpacity':
                 this.state.dateOpacity = value;
