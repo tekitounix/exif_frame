@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Share API Test</title>
+    <style>
+        body {
+            font-family: -apple-system, sans-serif;
+            padding: 20px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        button {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            margin: 10px 0;
+            font-size: 16px;
+            background: #007AFF;
+            color: white;
+            border: none;
+            border-radius: 8px;
+        }
+        .info {
+            background: #f0f0f0;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-family: monospace;
+            font-size: 14px;
+        }
+        #log {
+            background: #f0f0f0;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            font-family: monospace;
+            font-size: 14px;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+    <h1>Share API テスト</h1>
+    
+    <div class="info">
+        <strong>環境情報:</strong><br>
+        <span id="env"></span>
+    </div>
+    
+    <button onclick="testShare()">Share APIテスト</button>
+    <button onclick="testImageShare()">画像共有テスト（File API）</button>
+    <button onclick="testDataUrlShare()">画像共有テスト（Data URL）</button>
+    <button onclick="testSimpleFileShare()">シンプルなファイル共有</button>
+    <button onclick="testImageShareWithName()">画像共有（拡張子付き）</button>
+    <button onclick="testImageSharePNG()">PNG画像共有テスト</button>
+    
+    <div id="log">ログ:</div>
+    
+    <script>
+        // 環境情報表示
+        const envInfo = {
+            userAgent: navigator.userAgent,
+            hasShare: !!navigator.share,
+            hasCanShare: !!navigator.canShare,
+            isSecureContext: window.isSecureContext,
+            protocol: location.protocol
+        };
+        document.getElementById('env').innerHTML = JSON.stringify(envInfo, null, 2);
+        
+        function log(msg) {
+            document.getElementById('log').innerHTML += '\n' + new Date().toLocaleTimeString() + ': ' + msg;
+        }
+        
+        async function testShare() {
+            log('Share API テスト開始');
+            
+            if (!navigator.share) {
+                log('❌ navigator.share が利用できません');
+                return;
+            }
+            
+            try {
+                await navigator.share({
+                    title: 'テスト',
+                    text: 'これはテストです',
+                    url: location.href
+                });
+                log('✅ 共有成功');
+            } catch (error) {
+                log('❌ エラー: ' + error.name + ' - ' + error.message);
+            }
+        }
+        
+        async function testImageShare() {
+            log('画像共有テスト開始');
+            
+            if (!navigator.share) {
+                log('❌ navigator.share が利用できません');
+                return;
+            }
+            
+            // テスト画像を生成
+            const canvas = document.createElement('canvas');
+            canvas.width = 400;
+            canvas.height = 300;
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = '#007AFF';
+            ctx.fillRect(0, 0, 400, 300);
+            ctx.fillStyle = 'white';
+            ctx.font = '30px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('Test Image', 200, 150);
+            
+            canvas.toBlob(async blob => {
+                log('Blob作成: ' + blob.size + ' bytes');
+                
+                // Method 1: Blob URL
+                const blobUrl = URL.createObjectURL(blob);
+                log('Blob URL作成: ' + blobUrl);
+                
+                try {
+                    await navigator.share({
+                        url: blobUrl
+                    });
+                    log('✅ URL共有成功');
+                    setTimeout(() => URL.revokeObjectURL(blobUrl), 60000);
+                    return;
+                } catch (error) {
+                    log('❌ URL共有失敗: ' + error.message);
+                    URL.revokeObjectURL(blobUrl);
+                }
+                
+                // Method 2: File API
+                if (navigator.canShare) {
+                    const file = new File([blob], 'test.jpg', { type: 'image/jpeg' });
+                    
+                    if (navigator.canShare({ files: [file] })) {
+                        log('canShare: true - ファイル共有可能');
+                        try {
+                            await navigator.share({
+                                files: [file]
+                            });
+                            log('✅ ファイル共有成功');
+                        } catch (error) {
+                            log('❌ ファイル共有失敗: ' + error.message);
+                        }
+                    } else {
+                        log('❌ canShare: false - ファイル共有不可');
+                    }
+                } else {
+                    log('❌ navigator.canShare が利用できません');
+                }
+            }, 'image/jpeg', 0.95);
+        }
+        
+        // Data URLで画像共有
+        async function testDataUrlShare() {
+            log('Data URL共有テスト開始');
+            
+            if (!navigator.share) {
+                log('❌ navigator.share が利用できません');
+                return;
+            }
+            
+            // テスト画像を生成
+            const canvas = document.createElement('canvas');
+            canvas.width = 400;
+            canvas.height = 300;
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = '#FF6B6B';
+            ctx.fillRect(0, 0, 400, 300);
+            ctx.fillStyle = 'white';
+            ctx.font = '30px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('Data URL Test', 200, 150);
+            
+            const dataUrl = canvas.toDataURL('image/jpeg', 0.95);
+            log('Data URL作成: ' + dataUrl.substring(0, 50) + '...');
+            
+            try {
+                await navigator.share({
+                    title: '画像',
+                    text: 'テスト画像',
+                    url: dataUrl
+                });
+                log('✅ Data URL共有成功');
+            } catch (error) {
+                log('❌ Data URL共有失敗: ' + error.message);
+            }
+        }
+        
+        // シンプルなファイル共有（最小限の実装）
+        async function testSimpleFileShare() {
+            log('シンプルなファイル共有テスト開始');
+            
+            if (!navigator.share) {
+                log('❌ navigator.share が利用できません');
+                return;
+            }
+            
+            // 小さな画像を作成
+            const canvas = document.createElement('canvas');
+            canvas.width = 100;
+            canvas.height = 100;
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = '#4ECDC4';
+            ctx.fillRect(0, 0, 100, 100);
+            
+            canvas.toBlob(async blob => {
+                log('Blob作成: ' + blob.size + ' bytes');
+                
+                const file = new File([blob], 'photo.jpg', { 
+                    type: 'image/jpeg'
+                });
+                
+                try {
+                    // 最もシンプルな形式で共有
+                    await navigator.share({
+                        files: [file]
+                    });
+                    log('✅ シンプルファイル共有成功');
+                } catch (error) {
+                    log('❌ シンプルファイル共有失敗: ' + error.message);
+                }
+            }, 'image/jpeg', 0.95);
+        }
+        
+        // 拡張子付きファイル名で共有
+        async function testImageShareWithName() {
+            log('拡張子付きファイル名共有テスト開始');
+            
+            if (!navigator.share) {
+                log('❌ navigator.share が利用できません');
+                return;
+            }
+            
+            const canvas = document.createElement('canvas');
+            canvas.width = 800;
+            canvas.height = 600;
+            const ctx = canvas.getContext('2d');
+            
+            // グラデーション背景
+            const gradient = ctx.createLinearGradient(0, 0, 800, 600);
+            gradient.addColorStop(0, '#667eea');
+            gradient.addColorStop(1, '#764ba2');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, 800, 600);
+            
+            ctx.fillStyle = 'white';
+            ctx.font = 'bold 48px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('High Quality Image', 400, 300);
+            
+            canvas.toBlob(async blob => {
+                log('Blob作成: ' + blob.size + ' bytes');
+                
+                // 明確な拡張子付きファイル名
+                const file = new File([blob], 'test-image.jpg', { 
+                    type: 'image/jpeg'
+                });
+                
+                try {
+                    await navigator.share({
+                        files: [file]
+                    });
+                    log('✅ 拡張子付き共有成功');
+                } catch (error) {
+                    log('❌ 拡張子付き共有失敗: ' + error.message);
+                }
+            }, 'image/jpeg', 0.95);
+        }
+        
+        // PNG形式で共有
+        async function testImageSharePNG() {
+            log('PNG画像共有テスト開始');
+            
+            if (!navigator.share) {
+                log('❌ navigator.share が利用できません');
+                return;
+            }
+            
+            const canvas = document.createElement('canvas');
+            canvas.width = 800;
+            canvas.height = 600;
+            const ctx = canvas.getContext('2d');
+            
+            // 透明度を含む画像
+            ctx.fillStyle = 'rgba(0, 123, 255, 0.8)';
+            ctx.fillRect(0, 0, 800, 600);
+            
+            ctx.fillStyle = 'white';
+            ctx.font = 'bold 48px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.shadowBlur = 10;
+            ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
+            ctx.fillText('PNG Format Test', 400, 300);
+            
+            canvas.toBlob(async blob => {
+                log('PNG Blob作成: ' + blob.size + ' bytes');
+                
+                const file = new File([blob], 'test-image.png', { 
+                    type: 'image/png'
+                });
+                
+                try {
+                    await navigator.share({
+                        files: [file]
+                    });
+                    log('✅ PNG共有成功');
+                } catch (error) {
+                    log('❌ PNG共有失敗: ' + error.message);
+                }
+            }, 'image/png');
+        }
+    </script>
+</body>
+</html>

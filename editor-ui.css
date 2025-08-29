@@ -1,0 +1,605 @@
+/* Editor UI styles - Only affects the editing interface, not the output */
+
+/* UI Font */
+body {
+    font-family: 'F5.6', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+/* Editor Controls Container */
+.editor-controls {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: transparent;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    touch-action: pan-y;
+    opacity: 0.5;
+    pointer-events: none;
+    height: 280px;
+}
+
+.editor-controls.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+@media (min-width: 768px) {
+    .editor-controls {
+        max-width: 600px;
+        left: 50%;
+        transform: translateX(-50%);
+    }
+}
+
+/* iOS Photos Style - 3 layer structure */
+
+/* Bottom layer - Tool icons */
+.editor-icons {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    padding: 10px 0;
+    padding-bottom: calc(10px + env(safe-area-inset-bottom));
+    background: rgba(28, 28, 30, 0.95);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-top: 0.5px solid rgba(60, 60, 67, 0.36);
+}
+
+.tool-icons-container {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    width: 100%;
+    max-width: 420px;
+    margin: 0 auto;
+}
+
+.editor-icon {
+    flex: 1;
+    max-width: 60px;
+    height: 44px;
+    border: none;
+    background: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    color: rgba(255, 255, 255, 0.8);
+    position: relative;
+    padding: 0;
+}
+
+.editor-icon i {
+    font-size: 20px;
+}
+
+.editor-icon .polaroid-icon {
+    width: 20px;
+    height: 20px;
+}
+
+.editor-icon:active {
+    transform: scale(0.9);
+    opacity: 0.7;
+}
+
+.editor-icon.active {
+    color: #007AFF;
+}
+
+.tool-btn.active::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: #007AFF;
+}
+
+.editor-separator {
+    width: 0.5px;
+    height: 28px;
+    background: rgba(255, 255, 255, 0.2);
+    margin: 0 8px;
+    align-self: center;
+}
+
+/* Disabled state for tool buttons */
+.tool-btn.disabled,
+.tool-btn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+/* Disabled state for parameter selector and slider */
+.parameter-selector.disabled,
+.slider-container.disabled {
+    opacity: 0.3;
+    pointer-events: none;
+}
+
+.parameter-selector.disabled .parameter-btn,
+.slider-container.disabled .ios-slider-container,
+.slider-container.disabled .ios-collection-slider {
+    cursor: not-allowed;
+}
+
+/* Parameter label */
+.parameter-label {
+    display: none;
+    position: absolute;
+    top: 20px;
+    left: 0;
+    right: 0;
+    text-align: center;
+    font-size: 13px;
+    font-weight: 400;
+    color: rgba(255, 255, 255, 0.9);
+    z-index: 3;
+}
+
+.parameter-label.active {
+    display: block;
+}
+
+/* Middle layer - Parameter selector */
+.parameter-selector {
+    display: none;
+    position: absolute;
+    top: 55px;
+    left: 0;
+    right: 0;
+    height: 60px;
+    padding: 0;
+    background: transparent;
+    overflow: visible;
+}
+
+.parameter-selector.active {
+    display: block;
+}
+
+/* Parameter icons wrapper */
+.parameter-icons-wrapper {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 20px;
+    height: 100%;
+    transition: transform 0.3s ease;
+    position: relative;
+}
+
+.parameter-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    background: rgba(60, 60, 60, 0.8);
+    border: none;
+    border-radius: 22px;
+    color: rgba(255, 255, 255, 0.9);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    padding: 0;
+    position: relative;
+    flex-shrink: 0;
+}
+
+.parameter-btn.active {
+    background: rgba(80, 80, 80, 0.8);
+    transform: scale(1.2);
+}
+
+/* Progress ring for edited parameters (always visible) */
+.parameter-btn.edited::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    width: calc(100% + 4px);
+    height: calc(100% + 4px);
+    border-radius: 50%;
+    background: conic-gradient(
+        #FFD700 var(--progress, 0%),
+        transparent var(--progress, 0%)
+    );
+    -webkit-mask: radial-gradient(transparent 22px, #000 22.5px);
+    mask: radial-gradient(transparent 22px, #000 22.5px);
+    z-index: -1;
+    opacity: 0.8;
+}
+
+/* Active and edited parameter - full opacity ring */
+.parameter-btn.active.edited::before {
+    opacity: 1;
+}
+
+/* Progress ring for active parameter while dragging */
+.parameter-btn.active.dragging::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    width: calc(100% + 4px);
+    height: calc(100% + 4px);
+    border-radius: 50%;
+    background: conic-gradient(
+        #FFD700 var(--progress, 0%),
+        transparent var(--progress, 0%)
+    );
+    -webkit-mask: radial-gradient(transparent 22px, #000 22.5px);
+    mask: radial-gradient(transparent 22px, #000 22.5px);
+    z-index: -1;
+    opacity: 1;
+}
+
+.parameter-icon {
+    font-size: 18px;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.parameter-icon i {
+    font-size: 18px;
+}
+
+.parameter-value {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    font-family: 'F5.6', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-size: 16px;
+    font-weight: 400;
+    color: #fff;
+}
+
+/* Show value when active - only for sliders */
+.parameter-btn.active[data-type="slider"] .parameter-icon {
+    display: none;
+}
+
+.parameter-btn.active[data-type="slider"] .parameter-value {
+    display: flex;
+}
+
+/* Keep icons for non-slider parameters */
+.parameter-btn.active:not([data-type="slider"]) .parameter-icon {
+    display: flex;
+}
+
+.parameter-btn.active:not([data-type="slider"]) .parameter-value {
+    display: none;
+}
+
+/* Bypassed parameter state */
+.parameter-btn.bypassed {
+    opacity: 0.4;
+}
+
+.parameter-btn.bypassed::before {
+    opacity: 0.2 !important;
+}
+
+/* Show slash icon for bypassed parameters */
+.parameter-btn.bypassed::after {
+    content: '/';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) rotate(-45deg);
+    font-size: 28px;
+    color: rgba(255, 255, 255, 0.6);
+    font-weight: 300;
+    line-height: 1;
+    z-index: 10;
+}
+
+.parameter-name {
+    display: none;
+}
+
+/* Slider layer */
+.slider-container {
+    display: none;
+    position: absolute;
+    bottom: 80px;
+    left: 0;
+    right: 0;
+    padding: 0;
+    background: transparent;
+    height: 60px;
+}
+
+.slider-container.active {
+    display: block;
+}
+
+.value-display {
+    display: none;
+}
+
+.slider-wrapper {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    position: relative;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.slider-wrapper.visible {
+    opacity: 1;
+}
+
+/* iOS Photos scroll slider */
+.ios-slider-container {
+    position: relative;
+    width: 280px;
+    height: 60px;
+    overflow: hidden;
+    cursor: grab;
+    margin: 0 auto;
+    transform: translateY(10px);
+    opacity: 0;
+    animation: slideUp 0.3s ease forwards;
+}
+
+@keyframes slideUp {
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.ios-slider-container:active {
+    cursor: grabbing;
+}
+
+/* Center indicator line */
+.ios-slider-center {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 2px;
+    height: 30px;
+    background: rgba(255, 255, 255, 0.6);
+    border-radius: 1px;
+    pointer-events: none;
+    z-index: 2;
+    transition: background 0.2s ease;
+}
+
+/* Active state - yellow center line */
+.ios-slider-container.dragging .ios-slider-center {
+    background: #FFD700;
+    width: 3px;
+    height: 34px;
+}
+
+/* Center value dot */
+.ios-slider-value-dot {
+    position: absolute;
+    top: 50%;
+    width: 5px;
+    height: 5px;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 3;
+    margin-top: -25px;
+    margin-left: -2.5px;
+    transition: none;
+    will-change: transform;
+}
+
+/* Scrollable scale */
+.ios-slider-scale {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 30px;
+    width: 400px;
+    /* Performance optimizations */
+    will-change: transform;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    perspective: 1000px;
+    -webkit-perspective: 1000px;
+}
+
+/* Scale marks */
+.ios-slider-mark {
+    width: 1px;
+    background: rgba(255, 255, 255, 0.3);
+    flex-shrink: 0;
+}
+
+.ios-slider-mark.major {
+    height: 20px;
+    width: 2px;
+    background: rgba(255, 255, 255, 0.7);
+}
+
+.ios-slider-mark.minor {
+    height: 12px;
+}
+
+/* Hide the default input */
+.ios-slider {
+    display: none;
+}
+
+/* iOS style toggle */
+.ios-toggle {
+    position: relative;
+    width: 51px;
+    height: 31px;
+    background: rgba(120, 120, 128, 0.16);
+    border: none;
+    border-radius: 15.5px;
+    cursor: pointer;
+    transition: background 0.2s ease;
+    padding: 0;
+}
+
+.ios-toggle.active {
+    background: #30D158;
+}
+
+.ios-toggle::after {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 27px;
+    height: 27px;
+    background: #fff;
+    border-radius: 50%;
+    box-shadow: 0 3px 1px 0 rgba(0, 0, 0, 0.04), 0 3px 8px 0 rgba(0, 0, 0, 0.12);
+    transition: transform 0.2s ease;
+}
+
+.ios-toggle.active::after {
+    transform: translateX(20px);
+}
+
+/* iOS style segmented control */
+.ios-segmented {
+    display: flex;
+    gap: 8px;
+}
+
+.ios-segment {
+    padding: 8px 16px;
+    border: none;
+    background: rgba(60, 60, 67, 0.3);
+    color: rgba(255, 255, 255, 0.9);
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    font-size: 15px;
+    font-weight: 500;
+    text-align: center;
+    min-width: 50px;
+}
+
+.ios-segment.active {
+    background: #007AFF;
+    color: #fff;
+}
+
+.ios-segment:active {
+    transform: scale(0.95);
+}
+
+/* iOS Collection Slider */
+.ios-collection-slider {
+    position: relative;
+    width: 280px;
+    height: 60px;
+    margin: 0 auto;
+    overflow: hidden;
+    cursor: grab;
+    background: rgba(40, 40, 43, 0.6);
+    border-radius: 14px;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    transform: translateY(10px);
+    opacity: 0;
+    animation: slideUp 0.3s ease forwards;
+}
+
+.ios-collection-slider:active,
+.ios-collection-slider.dragging {
+    cursor: grabbing;
+}
+
+/* Center indicator */
+.ios-collection-center {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 80px;
+    height: 44px;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 10px;
+    pointer-events: none;
+    z-index: 2;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Collection scale */
+.ios-collection-scale {
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: flex;
+    align-items: center;
+    height: 100%;
+    transition: none;
+    will-change: transform;
+}
+
+.ios-collection-item {
+    position: absolute;
+    top: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 60px;
+    padding: 0 10px;
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 14px;
+    font-weight: 500;
+    text-align: center;
+    transition: all 0.2s ease;
+    user-select: none;
+    -webkit-user-select: none;
+    white-space: nowrap;
+}
+
+.ios-collection-item.active {
+    color: rgba(255, 255, 255, 0.9);
+    font-weight: 600;
+    transform: scale(1.1);
+}
+
+/* Hide old styles */
+.slider-stack {
+    display: none !important;
+}
+
+/* Hide old toggle and segmented styles */
+.ios-toggle,
+.ios-segmented,
+.ios-segment {
+    display: none !important;
+}

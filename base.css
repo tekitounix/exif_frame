@@ -1,0 +1,117 @@
+/* Base styles - Global resets and basic layout */
+
+/* Font Faces */
+@font-face {
+    font-family: 'F5.6';
+    src: url('f5_6_0110/Web Font/F5.6-Regular.eot');
+    src: url('f5_6_0110/Web Font/F5.6-Regular.eot?#iefix') format('embedded-opentype'),
+         url('f5_6_0110/Web Font/F5.6-Regular.woff2') format('woff2'),
+         url('f5_6_0110/Web Font/F5.6-Regular.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'DSEG14-Modern-MINI';
+    src: url('https://cdn.jsdelivr.net/npm/dseg@0.46.0/fonts/DSEG14-Modern/DSEG14-Modern-MINI.woff2') format('woff2'),
+         url('https://cdn.jsdelivr.net/npm/dseg@0.46.0/fonts/DSEG14-Modern/DSEG14-Modern-MINI.woff') format('woff');
+    font-style: normal;
+    font-weight: normal;
+}
+
+@font-face {
+    font-family: 'DSEG14-Modern-MINI-Italic';
+    src: url('https://cdn.jsdelivr.net/npm/dseg@0.46.0/fonts/DSEG14-Modern/DSEG14-Modern-MINIItalic.woff2') format('woff2'),
+         url('https://cdn.jsdelivr.net/npm/dseg@0.46.0/fonts/DSEG14-Modern/DSEG14-Modern-MINIItalic.woff') format('woff');
+    font-style: italic;
+    font-weight: normal;
+}
+
+/* Global Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    padding: 0;
+    line-height: 1.6;
+    margin: 0;
+    background: #000;
+    color: #111;
+    overflow: hidden;
+    height: 100vh;
+    width: 100vw;
+    position: fixed;
+    touch-action: manipulation;
+}
+
+.app {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    width: 100vw;
+    overflow: hidden;
+}
+
+/* Modal styles */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+}
+
+.modal.active {
+    display: flex;
+}
+
+.modal-content {
+    background: #fff;
+    border-radius: 8px;
+    padding: 24px;
+    max-width: 90%;
+    width: 500px;
+    max-height: 90vh;
+    overflow-y: auto;
+    position: relative;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.modal-title {
+    font-size: 18px;
+    font-weight: 600;
+    margin: 0;
+}
+
+.modal-close {
+    width: 32px;
+    height: 32px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    font-size: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #666;
+}
+
+.modal-close:hover {
+    color: #111;
+}

@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>EXIF Frame Generator</title>
+    <script src="https://cdn.jsdelivr.net/npm/exifr/dist/full.umd.js"></script>
+    <!-- Optional: LibRaw.js for better RAW support (experimental) -->
+    <!-- <script src="https://cdn.jsdelivr.net/npm/libraw-js@latest/dist/libraw.js"></script> -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;600&family=Space+Mono:wght@400;700&family=Roboto+Mono:wght@400;500&family=IBM+Plex+Mono:wght@400;600&family=Overpass+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/dseg@0.46.0/css/dseg.css" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="base.css">
+    <link rel="stylesheet" href="canvas.css">
+    <link rel="stylesheet" href="editor-ui.css">
+    <link rel="stylesheet" href="modal.css">
+</head>
+<body>
+    <div class="app">
+        <!-- Preview -->
+        <div class="preview-container">
+            <div class="preview" id="preview">
+                <canvas id="canvas" class="frame-canvas" style="display: none;"></canvas>
+                <div id="dropZone" class="drop-zone" onclick="document.getElementById('fileInput').click();">
+                    <i class="far fa-image drop-zone-icon"></i>
+                    <div class="drop-zone-text">Drop Image or Click to Select</div>
+                    <input type="file" id="fileInput" accept="image/*,.dng,.cr2,.cr3,.nef,.arw,.orf,.rw2,.raf,.pef,.srw,.x3f" style="display: none;">
+                </div>
+            </div>
+            <div class="editor-controls" id="editorControls">
+                <div class="parameter-label" id="parameterLabel">
+                    <!-- Parameter name will be inserted here -->
+                </div>
+                <div class="parameter-selector" id="parameterSelector">
+                    <!-- Parameter buttons will be inserted here -->
+                </div>
+                <div class="slider-container" id="sliderContainer">
+                    <div class="slider-wrapper" id="sliderWrapper">
+                        <!-- Slider will be inserted here -->
+                    </div>
+                </div>
+                <div class="editor-icons" id="editorIcons">
+                    <div class="tool-icons-container">
+                        <button type="button" class="editor-icon tool-btn" data-tool="frame" id="frameBtn" title="Frame Settings">
+                            <svg class="polaroid-icon" viewBox="0 0 448 512" fill="currentColor" width="20" height="20">
+                                <path d="M400 32H48C21.5 32 0 53.5 0 80v352c0 26.5 21.5 48 48 48h352c26.5 0 48-21.5 48-48V80c0-26.5-21.5-48-48-48zm-16 400H64V80h320v352zM320 128H128c-8.8 0-16 7.2-16 16v160c0 8.8 7.2 16 16 16h192c8.8 0 16-7.2 16-16V144c0-8.8-7.2-16-16-16z"/>
+                            </svg>
+                        </button>
+                        <button type="button" class="editor-icon tool-btn" data-tool="crop" id="cropBtn" title="Crop & Transform"><i class="fas fa-crop-alt"></i></button>
+                        <button type="button" class="editor-icon tool-btn" data-tool="adjust" id="adjustBtn" title="Adjust Colors"><i class="fas fa-sliders-h"></i></button>
+                        <button type="button" class="editor-icon tool-btn" data-tool="film" id="filmBtn" title="Film"><i class="fas fa-film"></i></button>
+                        <span class="editor-separator"></span>
+                        <button type="button" class="editor-icon" id="uploadBtn" title="Import Image"><i class="fas fa-folder-open"></i></button>
+                        <button type="button" class="editor-icon" id="exportBtn" title="Export Image"><i class="fas fa-download"></i></button>
+                        <button type="button" class="editor-icon" id="settingsBtn" title="Options"><i class="fas fa-cog"></i></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Settings Modal -->
+        <div class="modal" id="settingsModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title">EXIF Settings</h2>
+                    <button class="modal-close" id="modalClose">×</button>
+                </div>
+                <div class="modal-body">
+                    <div class="section">
+                        <h3 class="section-title">EXIF Data</h3>
+                        <div class="control-group">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="showCamera" checked> Camera
+                            </label>
+                            <input type="text" class="input" id="cameraOverride" placeholder="Auto-detect from EXIF">
+                        </div>
+                        <div class="control-group">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="showLens" checked> Lens
+                            </label>
+                            <input type="text" class="input" id="lensOverride" placeholder="Auto-detect from EXIF">
+                        </div>
+                        <div class="control-row">
+                            <div class="control-group">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" id="showISO" checked> ISO
+                                </label>
+                                <input type="text" class="input" id="isoOverride" placeholder="Auto">
+                            </div>
+                            <div class="control-group">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" id="showAperture" checked> Aperture
+                                </label>
+                                <input type="text" class="input" id="apertureOverride" placeholder="Auto">
+                            </div>
+                        </div>
+                        <div class="control-row">
+                            <div class="control-group">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" id="showShutter" checked> Shutter
+                                </label>
+                                <input type="text" class="input" id="shutterOverride" placeholder="Auto">
+                            </div>
+                            <div class="control-group">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" id="showDate" checked> Date/Time
+                                </label>
+                                <input type="text" class="input" id="dateOverride" placeholder="Auto">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="section">
+                        <h3 class="section-title">Export Settings</h3>
+                        <div class="control-group">
+                            <label class="label">Output Width</label>
+                            <select class="select" id="outputSizeSelect">
+                                <option value="1080" selected>1080px</option>
+                                <option value="1280">1280px</option>
+                                <option value="1920">1920px (Full HD)</option>
+                                <option value="2560">2560px (2K)</option>
+                                <option value="3840">3840px (4K)</option>
+                                <option value="custom">Custom</option>
+                            </select>
+                            <input type="number" class="input" id="customSizeInput" min="640" max="7680" value="1280" style="display: none; margin-top: 8px;" placeholder="Width in pixels">
+                        </div>
+                        <div class="control-group">
+                            <label class="label">Format</label>
+                            <select class="select" id="exportFormat">
+                                <option value="jpeg" selected>JPG</option>
+                                <option value="png">PNG</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script type="module" src="app.js"></script>
+</body>
+</html>

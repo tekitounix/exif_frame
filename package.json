@@ -1,0 +1,14 @@
+{
+  "name": "exif-frame-generator",
+  "version": "1.0.0",
+  "description": "EXIF Frame Generator with iOS Photos-style UI",
+  "scripts": {
+    "start": "python3 server.py",
+    "start:simple": "python3 -m http.server 8080",
+    "start:https": "python3 server.py",
+    "cert:generate": "openssl req -new -x509 -keyout key.pem -out cert.pem -days 365 -nodes -subj '/CN=localhost'"
+  },
+  "keywords": ["exif", "photo", "frame", "generator"],
+  "author": "",
+  "license": "MIT"
+}
