@@ -115,3 +115,64 @@ body {
 .modal-close:hover {
     color: #111;
 }
+
+/* Mobile adjustments */
+@media (max-width: 768px) {
+    .preview-container {
+        padding: 8px;
+    }
+    
+    .editor-separator {
+        margin: 0 6px;
+    }
+    
+    .editor-icon {
+        width: 40px;
+        height: 40px;
+        font-size: 18px;
+    }
+    
+    /* Better mobile drop zone */
+    .drop-zone {
+        min-height: 200px;
+        padding: 40px 20px;
+    }
+    
+    .drop-zone-icon {
+        font-size: 48px;
+    }
+    
+    .drop-zone-text {
+        font-size: 16px;
+    }
+    
+    /* Prevent text selection on mobile */
+    * {
+        -webkit-touch-callout: none;
+        -webkit-user-select: none;
+        user-select: none;
+    }
+    
+    input, textarea {
+        -webkit-user-select: text;
+        user-select: text;
+    }
+}
+
+/* Smaller mobile screens */
+@media (max-width: 480px) {
+    .modal-content {
+        width: calc(100% - 32px);
+        margin: 16px;
+    }
+    
+    .editor-icon {
+        width: 36px;
+        height: 36px;
+        font-size: 16px;
+    }
+    
+    .editor-separator {
+        margin: 0 4px;
+    }
+}

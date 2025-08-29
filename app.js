@@ -223,27 +223,8 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Show frame tool by default
     setTimeout(() => {
-        // Force show frame tool parameters
-        editorController.logic.activeTool = 'frame';
-        editorController.logic.activeParam = 'ratio';
-        const tool = editorController.logic.tools.frame;
-        
-        editorController.view.setActiveTool('frame');
-        editorController.view.createParameterButtons(tool.params, 'ratio');
-        editorController.view.showSliderContainer();
-        
-        // Update all parameter values
-        tool.params.forEach(param => {
-            const value = editorController.logic.getParamValue(param.id);
-            const displayValue = editorController.logic.formatDisplayValue(param.id, value);
-            editorController.view.updateParameterValue(param.id, displayValue);
-        });
-        
-        // Show first parameter
-        editorController.showParameter('ratio');
-        
-        // Setup parameter button listeners
-        editorController.setupParameterSwipe();
+        // Use the proper method to activate the frame tool
+        editorController.handleToolClick('frame');
     }, 100);
     
     // Disable UI when no image is loaded
@@ -733,7 +714,17 @@ function applyTransformations() {
     // Apply grain effect
     if (state.grain > 0) {
         tempCtx.save();
-        const grainData = tempCtx.createImageData(targetW, targetH);
+        // Optimize grain by using smaller canvas for performance
+        const grainScale = 0.5; // Reduce grain resolution for better performance
+        const grainW = Math.round(targetW * grainScale);
+        const grainH = Math.round(targetH * grainScale);
+        
+        const grainCanvas = document.createElement('canvas');
+        grainCanvas.width = grainW;
+        grainCanvas.height = grainH;
+        const grainCtx = grainCanvas.getContext('2d');
+        
+        const grainData = grainCtx.createImageData(grainW, grainH);
         const data = grainData.data;
         const intensity = state.grain / 100 * 30; // Scale grain intensity
         
@@ -745,8 +736,10 @@ function applyTransformations() {
             data[i+3] = intensity; // A
         }
         
+        grainCtx.putImageData(grainData, 0, 0);
+        
         tempCtx.globalCompositeOperation = 'overlay';
-        tempCtx.putImageData(grainData, 0, 0);
+        tempCtx.drawImage(grainCanvas, 0, 0, grainW, grainH, 0, 0, targetW, targetH);
         tempCtx.restore();
     }
     
@@ -779,7 +772,11 @@ function render() {
     
     requestAnimationFrame(() => {
         state.renderPending = false;
+        // Add performance timing
+        const startTime = performance.now();
         renderCanvas();
+        const endTime = performance.now();
+        console.log(`Render time: ${(endTime - startTime).toFixed(2)}ms`);
     });
 }
 
@@ -940,13 +937,12 @@ function renderCanvas() {
     // Restore canvas state
     ctx.restore();
     
-    // Apply film filter if selected (optimized version)
+    // Apply film filter if selected
     if (state.filmType && state.filmType > 0) {
         const filterNames = Object.keys(FILM_FILTERS);
         const filterName = filterNames[state.filmType];
-        const filter = FILM_FILTERS[filterName];
         
-        if (filter && filterName !== 'None') {
+        if (filterName && filterName !== 'None') {
             ctx.save();
             
             // Create a temporary canvas for the image area only
@@ -958,74 +954,11 @@ function renderCanvas() {
             // Copy image area to temp canvas
             tempCtx.drawImage(canvas, imagePad, imagePad, imageDrawW, imageDrawH, 0, 0, imageDrawW, imageDrawH);
             
-            // Use CSS filters for basic adjustments (much faster)
-            const strength = (state.filmStrength || 70) / 100;
-            const filters = [];
-            
-            if (filter.saturation !== undefined) {
-                const sat = 1 + (filter.saturation - 1) * strength;
-                filters.push(`saturate(${sat})`);
-            }
-            
-            if (filter.contrast !== undefined) {
-                const con = 1 + (filter.contrast - 1) * strength;
-                filters.push(`contrast(${con})`);
-            }
-            
-            // Apply basic color shift
-            if (filterName === 'Portra' || filterName === 'Gold' || filterName === 'Superia') {
-                filters.push(`sepia(${0.15 * strength})`);
-                filters.push(`hue-rotate(${5 * strength}deg)`);
-            } else if (filterName === 'Velvia') {
-                filters.push(`saturate(${1 + 0.2 * strength})`);
-                filters.push(`hue-rotate(${-5 * strength}deg)`);
-            } else if (filterName === 'Ektar') {
-                filters.push(`hue-rotate(${-3 * strength}deg)`);
-            }
-            
-            // B&W filters
-            if (filterName === 'Tri-X' || filterName === 'HP5' || filterName === 'T-MAX') {
-                filters.push('grayscale(1)');
-                if (filterName === 'Tri-X') {
-                    filters.push(`contrast(${1.2})`);
-                    filters.push(`brightness(${0.95})`);
-                } else if (filterName === 'HP5') {
-                    filters.push(`contrast(${1.1})`);
-                } else if (filterName === 'T-MAX') {
-                    filters.push(`contrast(${1.15})`);
-                    filters.push(`brightness(${1.05})`);
-                }
-            }
-            
-            if (filters.length > 0) {
-                tempCtx.filter = filters.join(' ');
-                tempCtx.drawImage(tempCanvas, 0, 0);
-            }
+            // Apply the film filter using the proper function
+            applyFilmFilter(tempCtx, filterName, state.filmStrength || 70);
             
             // Draw the filtered image back
             ctx.drawImage(tempCanvas, 0, 0, imageDrawW, imageDrawH, imagePad, imagePad, imageDrawW, imageDrawH);
-            
-            // Apply grain effect for film simulation
-            if (filter.grain && filterName !== 'None') {
-                const grainIntensity = filter.grain * strength * 0.3; // Scale down grain intensity
-                
-                // Create grain data
-                const grainData = ctx.createImageData(imageDrawW, imageDrawH);
-                const data = grainData.data;
-                
-                for (let i = 0; i < data.length; i += 4) {
-                    const noise = (Math.random() - 0.5) * grainIntensity * 255;
-                    data[i] = noise;       // R
-                    data[i+1] = noise;     // G
-                    data[i+2] = noise;     // B
-                    data[i+3] = grainIntensity * 255; // A
-                }
-                
-                // Apply grain with overlay blend mode
-                ctx.globalCompositeOperation = 'overlay';
-                ctx.putImageData(grainData, imagePad, imagePad);
-                ctx.globalCompositeOperation = 'source-over';
-            }
             
             ctx.restore();
         }
@@ -1831,10 +1764,14 @@ async function exportImage() {
                         files: [file]
                     });
                     console.log('Share successful');
+                    showToast('画像を共有しました');
                     return;
                 } catch (error) {
                     if (error.name !== 'AbortError') {
                         console.error('Share failed:', error);
+                        // iOSでShareが失敗した場合は通常のダウンロードを試行
+                        const url = URL.createObjectURL(blob);
+                        fallbackDownload(url, filename);
                     }
                 }
             } else if (!isIOS && navigator.share) {
@@ -1879,6 +1816,7 @@ async function exportImage() {
             a.download = filename;
             a.click();
             setTimeout(() => URL.revokeObjectURL(url), 100);
+            showToast('画像をダウンロードしました');
         }
         
         // Fallback download function for mobile

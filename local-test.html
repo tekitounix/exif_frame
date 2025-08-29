@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>Local Test - EXIF Frame Generator</title>
+    <style>
+        body {
+            font-family: -apple-system, sans-serif;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h2 { color: #333; margin-top: 0; }
+        .status { padding: 8px 16px; border-radius: 4px; display: inline-block; }
+        .pass { background: #d4edda; color: #155724; }
+        .fail { background: #f8d7da; color: #721c24; }
+        .info { background: #d1ecf1; color: #0c5460; }
+        button { 
+            background: #007bff; 
+            color: white; 
+            border: none; 
+            padding: 10px 20px; 
+            border-radius: 4px; 
+            cursor: pointer; 
+            margin-right: 10px;
+        }
+        button:hover { background: #0056b3; }
+        pre { background: #f8f9fa; padding: 10px; border-radius: 4px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h1>EXIF Frame Generator - ローカルテスト</h1>
+    
+    <div class="test-section">
+        <h2>1. ライブラリ読み込みチェック</h2>
+        <div id="lib-check"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>2. 画像アップロードテスト</h2>
+        <input type="file" id="test-file" accept="image/*">
+        <div id="upload-result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>3. EXIF読み取りテスト</h2>
+        <div id="exif-result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>4. Canvas描画テスト</h2>
+        <canvas id="test-canvas" style="max-width: 100%; border: 1px solid #ddd;"></canvas>
+    </div>
+    
+    <div class="test-section">
+        <h2>5. メインアプリケーション起動</h2>
+        <button onclick="window.open('index.html', '_blank')">アプリを開く</button>
+        <button onclick="checkConsoleErrors()">コンソールエラーチェック</button>
+        <div id="console-result"></div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/exifr/dist/full.umd.js"></script>
+    <script>
+        // 1. ライブラリチェック
+        const libCheck = document.getElementById('lib-check');
+        const libs = {
+            'exifr': typeof window.exifr !== 'undefined',
+            'Canvas API': typeof document.createElement('canvas').getContext === 'function',
+            'FileReader API': typeof FileReader !== 'undefined',
+            'Blob API': typeof Blob !== 'undefined'
+        };
+        
+        let allPass = true;
+        for (const [name, loaded] of Object.entries(libs)) {
+            const status = loaded ? 'pass' : 'fail';
+            libCheck.innerHTML += `<p>${name}: <span class="status ${status}">${loaded ? '✓ 読み込み成功' : '✗ 読み込み失敗'}</span></p>`;
+            if (!loaded) allPass = false;
+        }
+        
+        // 2. ファイルアップロードテスト
+        document.getElementById('test-file').addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            
+            const uploadResult = document.getElementById('upload-result');
+            uploadResult.innerHTML = `<p class="status info">ファイル: ${file.name} (${(file.size / 1024 / 1024).toFixed(2)}MB)</p>`;
+            
+            // 3. EXIF読み取りテスト
+            try {
+                const exif = await window.exifr.parse(file);
+                const exifResult = document.getElementById('exif-result');
+                if (exif) {
+                    exifResult.innerHTML = '<p class="status pass">✓ EXIF読み取り成功</p>';
+                    exifResult.innerHTML += '<pre>' + JSON.stringify({
+                        Make: exif.Make,
+                        Model: exif.Model,
+                        LensModel: exif.LensModel,
+                        ISO: exif.ISO,
+                        FNumber: exif.FNumber,
+                        ExposureTime: exif.ExposureTime,
+                        DateTimeOriginal: exif.DateTimeOriginal
+                    }, null, 2) + '</pre>';
+                } else {
+                    exifResult.innerHTML = '<p class="status fail">✗ EXIFデータなし</p>';
+                }
+            } catch (err) {
+                document.getElementById('exif-result').innerHTML = `<p class="status fail">✗ エラー: ${err.message}</p>`;
+            }
+            
+            // 4. Canvas描画テスト
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const img = new Image();
+                img.onload = () => {
+                    const canvas = document.getElementById('test-canvas');
+                    const ctx = canvas.getContext('2d');
+                    
+                    // サイズ調整
+                    const maxW = 400;
+                    const scale = maxW / img.width;
+                    canvas.width = maxW;
+                    canvas.height = img.height * scale;
+                    
+                    // 描画
+                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                    
+                    // テキスト追加
+                    ctx.fillStyle = 'white';
+                    ctx.font = '16px sans-serif';
+                    ctx.fillText('Canvas描画テスト成功', 10, 30);
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        });
+        
+        // コンソールエラーチェック
+        let errors = [];
+        window.addEventListener('error', (e) => {
+            errors.push(e.message);
+        });
+        
+        function checkConsoleErrors() {
+            const result = document.getElementById('console-result');
+            if (errors.length === 0) {
+                result.innerHTML = '<p class="status pass">✓ コンソールエラーなし</p>';
+            } else {
+                result.innerHTML = '<p class="status fail">✗ コンソールエラーあり:</p>';
+                errors.forEach(err => {
+                    result.innerHTML += `<pre>${err}</pre>`;
+                });
+            }
+        }
+    </script>
+</body>
+</html>
