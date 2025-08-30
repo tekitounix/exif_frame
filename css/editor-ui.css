@@ -38,7 +38,7 @@
 /* Editor Parameters Container - Above tool bar */
 .editor-parameters {
     display: flex;
-    flex-direction: column-reverse; /* Stack from bottom up */
+    flex-direction: column; /* Stack from top to bottom - correct order */
     background: transparent;
     /* This will expand as needed */
 }
@@ -165,8 +165,8 @@
 }
 
 .editor-icon.active {
-    color: #FFD700;
-    background: rgba(255, 215, 0, 0.15);
+    color: #FF9500;
+    background: rgba(255, 149, 0, 0.15);
 }
 
 /* Tool button specific styles */
@@ -180,7 +180,7 @@
     bottom: -4px;
     left: 50%;
     transform: translateX(-50%);
-    color: #FFD700;
+    color: #FF9500;
     font-size: 8px;
 }
 
@@ -237,7 +237,7 @@
     height: calc(100% + 4px);
     border-radius: 50%;
     background: conic-gradient(
-        #FFD700 var(--progress, 0%),
+        #FF9500 var(--progress, 0%),
         transparent var(--progress, 0%)
     );
     -webkit-mask: radial-gradient(transparent 22px, #000 22.5px);
@@ -260,7 +260,7 @@
     height: calc(100% + 4px);
     border-radius: 50%;
     background: conic-gradient(
-        #FFD700 var(--progress, 0%),
+        #FF9500 var(--progress, 0%),
         transparent var(--progress, 0%)
     );
     -webkit-mask: radial-gradient(transparent 22px, #000 22.5px);
@@ -389,7 +389,7 @@
 
 /* Active state - yellow center line */
 .ios-slider-container.dragging .ios-slider-center {
-    background: #FFD700;
+    background: #FF9500;
     width: 3px;
     height: 34px;
 }
