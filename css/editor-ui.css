@@ -19,10 +19,8 @@
     touch-action: pan-y;
     opacity: 0.5;
     pointer-events: none;
-    max-height: 50vh; /* Limit maximum height */
     transition: opacity 0.2s ease;
-    overflow-y: auto; /* Allow scrolling if content overflows */
-    -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+    overflow: hidden; /* Prevent scrolling */
     padding-bottom: env(safe-area-inset-bottom, 0); /* Safe area for home indicator */
 }
 

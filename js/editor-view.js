@@ -799,24 +799,23 @@ export class EditorView {
         
         // Function to update preview area height
         const updatePreviewHeight = () => {
-            // Use getBoundingClientRect for more accurate height including padding
-            const editorRect = this.editorControls.getBoundingClientRect();
-            const editorHeight = editorRect.height;
-            
             // Only update if editor is active/visible
             if (this.editorControls.classList.contains('active')) {
+                // Use offsetHeight for more reliable height measurement
+                const editorHeight = this.editorControls.offsetHeight;
+                
+                // On mobile, we need to account for actual rendered height
                 preview.style.bottom = `${editorHeight}px`;
                 
-                // Also update canvas max-height to prevent overlap
+                // Update canvas constraints
                 if (canvas) {
-                    const viewportHeight = window.innerHeight;
-                    const availableHeight = viewportHeight - editorHeight;
-                    canvas.style.maxHeight = `${availableHeight - 32}px`; // 32px for margin
+                    // Remove max-height constraint and rely on CSS
+                    canvas.style.maxHeight = '';
                 }
             } else {
                 preview.style.bottom = '0px';
                 if (canvas) {
-                    canvas.style.maxHeight = 'calc(100% - 32px)';
+                    canvas.style.maxHeight = '';
                 }
             }
         };

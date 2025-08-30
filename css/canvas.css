@@ -6,11 +6,12 @@
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    max-width: 100%;
-    max-height: 100%;
+    max-width: calc(100% - 16px);
+    max-height: calc(100% - 16px);
     cursor: pointer;
     box-shadow: 0 4px 24px rgba(0, 0, 0, 0.5);
     touch-action: manipulation;
+    object-fit: contain;
 }
 
 /* Drop zone for initial image upload */
@@ -99,15 +100,7 @@
         /* bottom is set dynamically by JS */
     }
     
-    /* Ensure canvas is properly centered on mobile */
-    .frame-canvas {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        max-width: calc(100% - 16px); /* Small margin on mobile */
-        max-height: calc(100% - 16px);
-    }
+    /* Canvas already has proper styling from base rules */
     
     .drop-zone {
         width: 90%;
