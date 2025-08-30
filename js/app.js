@@ -1121,19 +1121,10 @@ function initializeFileHandling() {
         });
     }
     
-    // Also create a picker for the upload button
-    const picker = document.createElement('input');
-    picker.type = 'file';
-    picker.accept = 'image/*';
-    picker.style.display = 'none';
-    document.body.appendChild(picker);
-    
-    picker.addEventListener('change', (e) => {
-        const file = e.target.files?.[0];
-        if (file) handleFile(file);
-    });
-    
-    window.openPicker = () => picker.click();
+    // Use the same file input for both tap and upload button
+    window.openPicker = () => {
+        if (fileInput) fileInput.click();
+    };
     
     // Drop events
     function handleDrop(e) {
