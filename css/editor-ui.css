@@ -167,6 +167,8 @@ body {
     padding: 0;
     background: transparent;
     overflow: visible;
+    /* Ensure parameter selector is above slider on mobile */
+    z-index: 10;
 }
 
 .parameter-selector.active {
@@ -325,7 +327,7 @@ body {
 .slider-container {
     display: none;
     position: absolute;
-    bottom: 80px;
+    bottom: calc(80px + env(safe-area-inset-bottom));
     left: 0;
     right: 0;
     padding: 0;
@@ -517,6 +519,19 @@ body {
 
 .ios-segment:active {
     transform: scale(0.95);
+}
+
+/* Mobile adjustments for Android navigation bar */
+@media (max-width: 768px) {
+    .slider-container {
+        /* Add extra padding for Android navigation bar */
+        bottom: calc(90px + env(safe-area-inset-bottom));
+    }
+    
+    .parameter-selector {
+        /* Adjust position on mobile */
+        top: 50px;
+    }
 }
 
 /* iOS Collection Slider */

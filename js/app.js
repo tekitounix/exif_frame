@@ -1116,14 +1116,22 @@ function initializeFileHandling() {
             // Only trigger file input if clicking on the dropzone itself (not children)
             if (e.target === dropZone || e.target.classList.contains('drop-zone-icon') || e.target.classList.contains('drop-zone-text')) {
                 console.log('Dropzone clicked, triggering file input');
-                if (fileInput) fileInput.click();
+                if (fileInput) {
+                    // Reset the input value to ensure change event fires even for same file
+                    fileInput.value = '';
+                    fileInput.click();
+                }
             }
         });
     }
     
     // Use the same file input for both tap and upload button
     window.openPicker = () => {
-        if (fileInput) fileInput.click();
+        if (fileInput) {
+            // Reset the input value to ensure change event fires even for same file
+            fileInput.value = '';
+            fileInput.click();
+        }
     };
     
     // Drop events
