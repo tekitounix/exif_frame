@@ -1,12 +1,11 @@
-/* Editor UI - iOS Photos Style with Flexible Layout */
+/* Editor UI styles - Only affects the editing interface, not the output */
 
-/* Import monospace font styles */
-.parameter-value,
-.export-size {
+/* UI Font - Use system monospace fonts with F5.6 as primary */
+body {
     font-family: 'F5.6', 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
 }
 
-/* Editor Controls Container - Flexible Layout */
+/* Editor Controls Container */
 .editor-controls {
     position: fixed;
     bottom: 0;
@@ -19,7 +18,7 @@
     touch-action: pan-y;
     opacity: 0.5;
     pointer-events: none;
-    /* Dynamic height based on content */
+    height: 280px;
 }
 
 .editor-controls.active {
@@ -35,26 +34,23 @@
     }
 }
 
-/* Editor Parameters Container - Above tool bar */
-.editor-parameters {
-    display: flex;
-    flex-direction: column-reverse; /* Stack from bottom up */
-    background: transparent;
-    /* This will expand as needed */
-}
+/* iOS Photos Style - 3 layer structure */
 
-/* Tool Icons Bar - Always at bottom */
+/* Bottom layer - Tool icons */
 .editor-icons {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
     display: flex;
     justify-content: space-around;
     align-items: center;
     padding: 10px 0;
-    padding-bottom: calc(10px + env(safe-area-inset-bottom, 0));
+    padding-bottom: calc(10px + env(safe-area-inset-bottom));
     background: rgba(28, 28, 30, 0.95);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
     border-top: 0.5px solid rgba(60, 60, 67, 0.36);
-    flex-shrink: 0;
 }
 
 .tool-icons-container {
@@ -62,137 +58,74 @@
     justify-content: space-around;
     align-items: center;
     width: 100%;
-    gap: 10px;
-    padding: 0 20px;
+    max-width: 420px;
+    margin: 0 auto;
 }
 
-/* Slider Container */
-.slider-container {
-    display: none;
-    padding: 15px 0 15px;
-    background: transparent;
-    flex-shrink: 0;
-}
-
-.slider-container.active {
-    display: block;
-}
-
-/* Parameter Selector */
-.parameter-selector {
-    display: none;
-    height: 60px;
-    padding: 10px 0;
-    background: transparent;
-    overflow: visible;
-    flex-shrink: 0;
-}
-
-.parameter-selector.active {
-    display: block;
-}
-
-/* Parameter Label */
-.parameter-label {
-    display: none;
-    text-align: center;
-    font-size: 13px;
-    font-weight: 400;
-    color: rgba(255, 255, 255, 0.9);
-    padding: 15px 0 5px;
-    flex-shrink: 0;
-}
-
-.parameter-label.active {
-    display: block;
-}
-
-/* Parameter icons wrapper */
-.parameter-icons-wrapper {
-    display: flex;
-    justify-content: flex-start;
-    align-items: center;
-    gap: 20px;
-    height: 100%;
-    transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-    will-change: transform;
-    padding: 0 20px;
-}
-
-/* Mobile-specific adjustments */
-@media (max-width: 768px) {
-    /* Ensure proper spacing on mobile */
-    .editor-parameters {
-        /* Add subtle gradient to separate from content */
-        background: linear-gradient(to bottom, 
-            transparent 0%, 
-            rgba(28, 28, 30, 0.3) 100%);
-    }
-    
-    .parameter-selector {
-        padding: 10px 0;
-    }
-    
-    .parameter-icons-wrapper {
-        padding: 0 10px;
-    }
-    
-    .slider-container {
-        padding: 10px 0 20px;
-    }
-}
-
-/* Tool and parameter buttons */
 .editor-icon {
-    width: 44px;
+    flex: 1;
+    max-width: 60px;
     height: 44px;
     border: none;
-    background: transparent;
-    color: rgba(255, 255, 255, 0.9);
-    cursor: pointer;
-    border-radius: 22px;
+    background: none;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 20px;
-    transition: all 0.2s ease;
-    flex-shrink: 0;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    color: rgba(255, 255, 255, 0.8);
+    position: relative;
+    padding: 0;
+}
+
+.editor-icon i {
+    font-size: 20px;
+}
+
+.editor-icon .polaroid-icon {
+    width: 20px;
+    height: 20px;
 }
 
 .editor-icon:active {
     transform: scale(0.9);
-    background: rgba(255, 255, 255, 0.1);
+    opacity: 0.7;
 }
 
 .editor-icon.active {
-    color: #FFD700;
-    background: rgba(255, 215, 0, 0.15);
-}
-
-/* Tool button specific styles */
-.tool-btn {
-    position: relative;
+    color: #007AFF;
 }
 
 .tool-btn.active::after {
-    content: '•';
+    content: '';
     position: absolute;
-    bottom: -4px;
+    bottom: -2px;
     left: 50%;
     transform: translateX(-50%);
-    color: #FFD700;
-    font-size: 8px;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: #007AFF;
 }
 
-/* Editor separator */
 .editor-separator {
     width: 0.5px;
-    height: 30px;
-    background: rgba(60, 60, 67, 0.36);
-    margin: 0 10px;
+    height: 28px;
+    background: rgba(255, 255, 255, 0.2);
+    margin: 0 8px;
+    align-self: center;
 }
 
-/* Disabled state */
+/* Disabled state for tool buttons */
+.tool-btn.disabled,
+.tool-btn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+/* Disabled state for parameter selector and slider */
 .parameter-selector.disabled,
 .slider-container.disabled {
     opacity: 0.3;
@@ -205,19 +138,67 @@
     cursor: not-allowed;
 }
 
-/* Parameter button */
+/* Parameter label */
+.parameter-label {
+    display: none;
+    position: absolute;
+    top: 20px;
+    left: 0;
+    right: 0;
+    text-align: center;
+    font-size: 13px;
+    font-weight: 400;
+    color: rgba(255, 255, 255, 0.9);
+    z-index: 3;
+}
+
+.parameter-label.active {
+    display: block;
+}
+
+/* Middle layer - Parameter selector */
+.parameter-selector {
+    display: none;
+    position: absolute;
+    top: 55px;
+    left: 0;
+    right: 0;
+    height: 60px;
+    padding: 0;
+    background: transparent;
+    overflow: visible;
+    /* Ensure parameter selector is above slider on mobile */
+    z-index: 10;
+}
+
+.parameter-selector.active {
+    display: block;
+}
+
+/* Parameter icons wrapper */
+.parameter-icons-wrapper {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 20px;
+    height: 100%;
+    transition: transform 0.3s ease;
+    position: relative;
+}
+
 .parameter-btn {
-    width: 44px;
-    height: 44px;
-    border: none;
-    background: rgba(48, 48, 51, 0.6);
-    border-radius: 50%;
-    cursor: pointer;
-    transition: all 0.2s ease;
     display: flex;
     align-items: center;
     justify-content: center;
+    width: 44px;
+    height: 44px;
+    background: rgba(60, 60, 60, 0.8);
+    border: none;
+    border-radius: 22px;
     color: rgba(255, 255, 255, 0.9);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    padding: 0;
     position: relative;
     flex-shrink: 0;
 }
@@ -227,7 +208,7 @@
     transform: scale(1.2);
 }
 
-/* Progress ring for edited parameters */
+/* Progress ring for edited parameters (always visible) */
 .parameter-btn.edited::before {
     content: '';
     position: absolute;
@@ -246,6 +227,7 @@
     opacity: 0.8;
 }
 
+/* Active and edited parameter - full opacity ring */
 .parameter-btn.active.edited::before {
     opacity: 1;
 }
@@ -319,33 +301,59 @@
     opacity: 0.4;
 }
 
+.parameter-btn.bypassed::before {
+    opacity: 0.2 !important;
+}
+
+/* Show slash icon for bypassed parameters */
 .parameter-btn.bypassed::after {
-    content: '';
+    content: '/';
     position: absolute;
     top: 50%;
     left: 50%;
-    transform: translate(-50%, -50%) rotate(45deg);
-    width: 2px;
-    height: 30px;
-    background: rgba(255, 255, 255, 0.6);
-    border-radius: 1px;
+    transform: translate(-50%, -50%) rotate(-45deg);
+    font-size: 28px;
+    color: rgba(255, 255, 255, 0.6);
+    font-weight: 300;
+    line-height: 1;
+    z-index: 10;
 }
 
-/* Parameter name (hidden) */
 .parameter-name {
     display: none;
 }
 
-/* iOS-style sliders */
-.slider-wrapper {
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+/* Slider layer */
+.slider-container {
+    display: none;
+    position: absolute;
+    bottom: calc(80px + env(safe-area-inset-bottom));
+    left: 0;
+    right: 0;
+    padding: 0;
+    background: transparent;
+    height: 60px;
+}
+
+.slider-container.active {
+    display: block;
 }
 
 .value-display {
     display: none;
+}
+
+.slider-wrapper {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    position: relative;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.slider-wrapper.visible {
+    opacity: 1;
 }
 
 /* iOS Photos scroll slider */
@@ -511,6 +519,40 @@
 
 .ios-segment:active {
     transform: scale(0.95);
+}
+
+/* Mobile adjustments for Android navigation bar */
+@media (max-width: 768px) {
+    .slider-container {
+        /* Add extra padding for Android navigation bar */
+        bottom: 110px;
+        bottom: calc(110px + env(safe-area-inset-bottom));
+    }
+    
+    .parameter-selector {
+        /* Adjust position on mobile */
+        top: 40px;
+    }
+    
+    /* Ensure editor controls have enough space */
+    .editor-controls {
+        padding-bottom: 20px;
+        padding-bottom: env(safe-area-inset-bottom, 20px);
+    }
+    
+    /* Additional space for parameter label on mobile */
+    .parameter-label {
+        top: 15px;
+    }
+}
+
+/* Android-specific adjustments using user agent detection */
+@supports (-webkit-appearance: none) and (not (-moz-appearance: none)) {
+    @media (max-width: 768px) {
+        .slider-container {
+            bottom: 120px;
+        }
+    }
 }
 
 /* iOS Collection Slider */
