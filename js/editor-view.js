@@ -786,20 +786,36 @@ export class EditorView {
         const preview = document.querySelector('.preview');
         if (!preview) return;
         
-        // Create ResizeObserver to watch editor controls height
-        const resizeObserver = new ResizeObserver(entries => {
-            for (const entry of entries) {
-                const height = entry.contentRect.height;
-                // Update preview bottom based on editor controls
-                preview.style.bottom = `${height}px`;
+        // Function to update preview area height
+        const updatePreviewHeight = () => {
+            const editorHeight = this.editorControls.offsetHeight;
+            // Only update if editor is active/visible
+            if (this.editorControls.classList.contains('active')) {
+                preview.style.bottom = `${editorHeight}px`;
+            } else {
+                preview.style.bottom = '0px';
             }
+        };
+        
+        // Create ResizeObserver to watch editor controls height
+        const resizeObserver = new ResizeObserver(() => {
+            updatePreviewHeight();
         });
         
         // Start observing editor controls
         resizeObserver.observe(this.editorControls);
         
+        // Also watch for class changes on editor controls
+        const observer = new MutationObserver(() => {
+            updatePreviewHeight();
+        });
+        
+        observer.observe(this.editorControls, {
+            attributes: true,
+            attributeFilter: ['class']
+        });
+        
         // Initial adjustment
-        const initialHeight = this.editorControls.offsetHeight;
-        preview.style.bottom = `${initialHeight}px`;
+        updatePreviewHeight();
     }
 }
