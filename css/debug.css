@@ -1,0 +1,174 @@
+/* Debug styles - Visual boundaries for layout debugging */
+
+/* Preview container - Blue */
+.preview-container {
+    border: 3px solid #007AFF !important;
+    box-shadow: inset 0 0 10px rgba(0, 122, 255, 0.3) !important;
+}
+
+/* Preview area - Cyan */
+.preview {
+    border: 3px solid #00D4FF !important;
+    box-shadow: inset 0 0 10px rgba(0, 212, 255, 0.3) !important;
+}
+
+/* Drop zone - Green */
+.drop-zone {
+    border: 3px dashed #30D158 !important;
+    box-shadow: inset 0 0 10px rgba(48, 209, 88, 0.3) !important;
+}
+
+/* Editor controls container - Red */
+.editor-controls {
+    border: 3px solid #FF3B30 !important;
+    box-shadow: inset 0 0 10px rgba(255, 59, 48, 0.3) !important;
+}
+
+/* Editor parameters - Orange */
+.editor-parameters {
+    border: 2px solid #FF9500 !important;
+    box-shadow: inset 0 0 10px rgba(255, 149, 0, 0.3) !important;
+}
+
+/* Parameter selector - Yellow */
+.parameter-selector {
+    border: 2px solid #FFD700 !important;
+    box-shadow: inset 0 0 10px rgba(255, 215, 0, 0.3) !important;
+}
+
+/* Parameter icons wrapper - Pink */
+.parameter-icons-wrapper {
+    border: 2px solid #FF1493 !important;
+    box-shadow: inset 0 0 10px rgba(255, 20, 147, 0.3) !important;
+}
+
+/* Slider container - Purple */
+.slider-container {
+    border: 2px solid #AF52DE !important;
+    box-shadow: inset 0 0 10px rgba(175, 82, 222, 0.3) !important;
+}
+
+/* Editor icons (toolbar) - Teal */
+.editor-icons {
+    border: 2px solid #40E0D0 !important;
+    box-shadow: inset 0 0 10px rgba(64, 224, 208, 0.3) !important;
+}
+
+/* Tool icons container - Lime */
+.tool-icons-container {
+    border: 2px solid #32CD32 !important;
+    box-shadow: inset 0 0 10px rgba(50, 205, 50, 0.3) !important;
+}
+
+/* Parameter label - Brown */
+.parameter-label {
+    border: 2px solid #8B4513 !important;
+    box-shadow: inset 0 0 10px rgba(139, 69, 19, 0.3) !important;
+}
+
+/* Add labels to each section */
+.preview-container::before {
+    content: "PREVIEW CONTAINER";
+    position: absolute;
+    top: 5px;
+    left: 5px;
+    background: #007AFF;
+    color: white;
+    padding: 2px 8px;
+    font-size: 12px;
+    font-weight: bold;
+    z-index: 9999;
+}
+
+.preview::before {
+    content: "PREVIEW";
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background: #00D4FF;
+    color: black;
+    padding: 2px 8px;
+    font-size: 12px;
+    font-weight: bold;
+    z-index: 9999;
+}
+
+.drop-zone::before {
+    content: "DROP ZONE";
+    position: absolute;
+    top: 5px;
+    left: 5px;
+    background: #30D158;
+    color: white;
+    padding: 2px 8px;
+    font-size: 12px;
+    font-weight: bold;
+    z-index: 9999;
+}
+
+.editor-controls::before {
+    content: "EDITOR CONTROLS";
+    position: absolute;
+    bottom: 5px;
+    left: 5px;
+    background: #FF3B30;
+    color: white;
+    padding: 2px 8px;
+    font-size: 12px;
+    font-weight: bold;
+    z-index: 9999;
+}
+
+.editor-parameters::before {
+    content: "PARAMETERS";
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background: #FF9500;
+    color: white;
+    padding: 2px 8px;
+    font-size: 12px;
+    font-weight: bold;
+    z-index: 9999;
+}
+
+/* Add grid overlay */
+body::after {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: 
+        linear-gradient(rgba(255,255,255,.1) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.1) 1px, transparent 1px);
+    background-size: 50px 50px;
+    pointer-events: none;
+    z-index: 10000;
+}
+
+/* Add center lines */
+body::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 50%;
+    width: 1px;
+    height: 100%;
+    background: rgba(255, 0, 0, 0.5);
+    pointer-events: none;
+    z-index: 10001;
+}
+
+.preview-container::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 50%;
+    width: 100%;
+    height: 1px;
+    background: rgba(255, 0, 0, 0.5);
+    pointer-events: none;
+    z-index: 10001;
+}
