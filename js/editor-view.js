@@ -98,7 +98,6 @@ export class EditorView {
         const activeBtn = buttons[activeIndex];
         const container = this.parameterSelector;
         
-        console.log(`centerParameterButton: index ${activeIndex}, button: ${activeBtn.dataset.param}`);
         
         // Get button position relative to wrapper
         const btnOffsetLeft = activeBtn.offsetLeft;
@@ -115,6 +114,7 @@ export class EditorView {
         // Get wrapper total width
         const wrapperWidth = wrapper.scrollWidth;
         
+        
         // Only apply bounds if wrapper is wider than container
         let finalOffset = targetOffset;
         if (wrapperWidth > containerWidth) {
@@ -122,8 +122,20 @@ export class EditorView {
             const minOffset = containerWidth - wrapperWidth;
             const maxOffset = 0;
             
-            // Clamp the offset to keep icons visible
-            finalOffset = Math.max(minOffset, Math.min(maxOffset, targetOffset));
+            
+            // For narrow screens, we want to allow centering even if it means
+            // some icons go off-screen (user can swipe to see them)
+            // Only clamp if the active button would be completely hidden
+            const btnRight = btnCenter + targetOffset + (btnWidth / 2);
+            const btnLeft = btnCenter + targetOffset - (btnWidth / 2);
+            
+            if (btnRight < 0 || btnLeft > containerWidth) {
+                // Button would be completely off-screen, apply clamping
+                finalOffset = Math.max(minOffset, Math.min(maxOffset, targetOffset));
+            } else {
+                // Allow centering even if some other buttons are off-screen
+                finalOffset = targetOffset;
+            }
         }
         
         // Apply smooth transition
@@ -147,7 +159,6 @@ export class EditorView {
             if (isActive) activeIndex = index;
         });
         
-        console.log(`setActiveParameter: ${paramId}, activeIndex: ${activeIndex}`);
         
         // Slide active button to center
         if (activeIndex >= 0) {
