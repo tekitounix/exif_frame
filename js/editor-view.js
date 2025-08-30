@@ -90,16 +90,29 @@ export class EditorView {
         
         const buttons = wrapper.querySelectorAll('.parameter-btn');
         const totalButtons = buttons.length;
-        const buttonWidth = 44;
+        const baseButtonWidth = 44;
         const gap = 20;
         
-        // Calculate total width and center position
-        const totalWidth = (buttonWidth * totalButtons) + (gap * (totalButtons - 1));
-        const containerWidth = this.parameterSelector.offsetWidth;
+        // Get the actual scaled width of the active button
+        const activeBtn = buttons[activeIndex];
+        if (!activeBtn) return;
         
-        // Calculate offset to center the active button
-        const activeButtonCenter = (activeIndex * (buttonWidth + gap)) + (buttonWidth / 2);
-        const offset = (containerWidth / 2) - activeButtonCenter;
+        // Account for scale transform on active button (1.2x)
+        const scaledButtonWidth = activeBtn.classList.contains('active') ? baseButtonWidth * 1.2 : baseButtonWidth;
+        
+        // Calculate position considering the scaled width
+        let position = 0;
+        for (let i = 0; i < activeIndex; i++) {
+            const btn = buttons[i];
+            const btnWidth = btn.classList.contains('active') ? baseButtonWidth * 1.2 : baseButtonWidth;
+            position += btnWidth + gap;
+        }
+        
+        // Add half of the active button width to get its center
+        position += scaledButtonWidth / 2;
+        
+        const containerWidth = this.parameterSelector.offsetWidth;
+        const offset = (containerWidth / 2) - position;
         
         wrapper.style.transform = `translateX(${offset}px)`;
     }
