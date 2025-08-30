@@ -220,11 +220,16 @@
     color: rgba(255, 255, 255, 0.9);
     position: relative;
     flex-shrink: 0;
+    /* Ensure proper centering */
+    padding: 0;
+    text-align: center;
 }
 
 .parameter-btn.active {
     background: rgba(80, 80, 80, 0.8);
     transform: scale(1.2);
+    /* Ensure content stays centered during scale */
+    transform-origin: center center;
 }
 
 /* Progress ring for edited parameters */
@@ -275,10 +280,13 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    width: 100%;
+    height: 100%;
 }
 
 .parameter-icon i {
     font-size: 18px;
+    display: block;
 }
 
 .parameter-value {
