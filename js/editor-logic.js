@@ -42,7 +42,8 @@ export class EditorLogic {
                     { id: 'textPadding', icon: '<i class="fas fa-text-width"></i>', name: 'Text Pad', type: 'slider' },
                     { id: 'framePadding', icon: '<i class="fas fa-border-all"></i>', name: 'Frame', type: 'toggle' },
                     { id: 'theme', icon: '<i class="fas fa-moon"></i>', name: 'Theme', type: 'toggle' },
-                    { id: 'fontSize', icon: '<i class="fas fa-text-height"></i>', name: 'Font', type: 'slider' }
+                    { id: 'fontSize', icon: '<i class="fas fa-text-height"></i>', name: 'Font', type: 'slider' },
+                    { id: 'lineSpacing', icon: '<i class="fas fa-arrows-alt-v"></i>', name: 'Line Gap', type: 'slider' }
                 ]
             },
             film: {
@@ -69,6 +70,7 @@ export class EditorLogic {
             framePadding: { default: false }, // false = no frame padding, true = with frame padding
             theme: { default: false }, // false = light, true = dark
             fontSize: { min: 60, max: 100, step: 10, default: 80 },
+            lineSpacing: { min: 30, max: 150, step: 10, default: 70 },
             filmType: { 
                 options: ['None', 'Superia', 'Provia', 'Velvia', 'Portra', 'Ektar', 'Gold', 'Astia', 'Tri-X', 'HP5', 'T-MAX'], 
                 default: 0 

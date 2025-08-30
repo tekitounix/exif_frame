@@ -66,6 +66,7 @@ let state = {
     themeKey: 'light',
     pad: 24,  // Default 24px
     fontScale: 0.8,  // Font size scale (default 80%)
+    lineSpacing: 0.7, // Line spacing scale (default 70%)
     showCamera: true,
     showLens: true,
     showAperture: true,
@@ -900,7 +901,7 @@ function renderCanvas() {
     const r2 = wrapLines(ctx, rightBottom, colW);
     const row2H = Math.max(l2.length, r2.length) * lineHMeta;
     
-    const rowsGap = row2H ? Math.round(metaSize * 0.7) : 0;
+    const rowsGap = row2H ? Math.round(metaSize * state.lineSpacing) : 0;
     const textHeight = row1H + rowsGap + row2H;
     const topPad = outerPad;
     const bottomPad = Math.round(outerPad * 0.85); // 下部の余白を少し減らす
@@ -1239,6 +1240,7 @@ function initializeSettingsControls() {
         padding: { label: 'Padding', min: 0, max: 4, step: 1, default: 0, unit: 'px' },
         theme: { label: 'Theme', min: 0, max: 1, step: 1, default: 0, unit: '', labels: ['Light', 'Dark'] },
         fontSize: { label: 'Font Size', min: 60, max: 100, step: 10, default: 80, unit: '%' },
+        lineSpacing: { label: 'Line Spacing', min: 30, max: 150, step: 10, default: 70, unit: '%' },
         dateOpacity: { label: 'Opacity', min: 0, max: 100, step: 10, default: 60, unit: '%' },
         dateBrightness: { label: 'Brightness', min: 50, max: 150, step: 10, default: 100, unit: '%' },
         dateBlur: { label: 'Blur', min: 0, max: 5, step: 0.5, default: 2.2, unit: 'px' },
@@ -1351,6 +1353,7 @@ function initializeSettingsControls() {
                     if (currentValue === 4 && !state.useImagePadding) currentValue = 3;
                     break;
                 case 'fontSize': currentValue = state.fontScale * 100; break;
+                case 'lineSpacing': currentValue = state.lineSpacing * 100; break;
                 case 'dateOpacity': currentValue = state.dateOpacity; break;
                 case 'dateBrightness': currentValue = state.dateBrightness; break;
                 case 'dateBlur': currentValue = state.dateBlur; break;
@@ -1392,6 +1395,7 @@ function initializeSettingsControls() {
                         render(); 
                         break;
                     case 'fontSize': state.fontScale = value / 100; render(); break;
+                    case 'lineSpacing': state.lineSpacing = value / 100; render(); break;
                     case 'dateOpacity': state.dateOpacity = value; render(); break;
                     case 'dateBrightness': state.dateBrightness = value; render(); break;
                     case 'dateBlur': state.dateBlur = value; render(); break;
@@ -1456,6 +1460,7 @@ function initializeSettingsControls() {
         padding: '□',
         theme: '◑',
         fontSize: 'Aa',
+        lineSpacing: '↕',
         dateStamp: '📅',
         opacity: '◯',
         brightness: '☀',
