@@ -1503,59 +1503,9 @@ function initializeSettingsControls() {
     }
     
     // Show all sliders for a tool
-    function showToolSliders(toolId) {
-        if (!sliderStack) return;
-        
-        // Hide all sliders first
-        document.querySelectorAll('.slider-row').forEach(row => {
-            row.classList.remove('active');
-        });
-        
-        // Show sliders for this tool
-        const toolConfig = toolGroups[toolId];
-        if (!toolConfig) return;
-        
-        // Collect all parameters for this tool
-        const allParams = [];
-        Object.values(toolConfig.params).forEach(paramGroup => {
-            paramGroup.params.forEach(param => {
-                allParams.push(param);
-            });
-        });
-        
-        // Create and show sliders
-        sliderStack.innerHTML = '';
-        allParams.forEach(param => {
-            const row = createSliderRow(param);
-            row.classList.add('active');
-            sliderStack.appendChild(row);
-        });
-    }
+    // Slider management is now handled by EditorController
     
-    // Handle tool button clicks
-    const toolButtons = document.querySelectorAll('.tool-btn');
-    toolButtons.forEach(btn => {
-        btn.addEventListener('click', () => {
-            const tool = btn.dataset.tool;
-            if (!tool || !toolGroups[tool]) return;
-            
-            // Update active states
-            toolButtons.forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            
-            activeTool = tool;
-            // Select first parameter by default
-            activeParam = Object.keys(toolGroups[tool].params)[0];
-            
-            // Show all sliders for the selected tool
-            showToolSliders(tool);
-            
-            // Update preview container height
-            requestAnimationFrame(() => {
-                setTimeout(() => updatePreviewContainerHeight(), 100);
-            });
-        });
-    });
+    // Tool button clicks are now handled by EditorController
     
     // Settings button
     if (settingsBtn) {
