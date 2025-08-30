@@ -1240,7 +1240,7 @@ function initializeSettingsControls() {
         padding: { label: 'Padding', min: 0, max: 4, step: 1, default: 0, unit: 'px' },
         theme: { label: 'Theme', min: 0, max: 1, step: 1, default: 0, unit: '', labels: ['Light', 'Dark'] },
         fontSize: { label: 'Font Size', min: 60, max: 100, step: 10, default: 80, unit: '%' },
-        lineSpacing: { label: 'Line Spacing', min: 0, max: 200, step: 10, default: 70, unit: '%' },
+        lineSpacing: { label: 'Line Spacing', min: 20, max: 100, step: 5, default: 70, unit: '%' },
         dateOpacity: { label: 'Opacity', min: 0, max: 100, step: 10, default: 60, unit: '%' },
         dateBrightness: { label: 'Brightness', min: 50, max: 150, step: 10, default: 100, unit: '%' },
         dateBlur: { label: 'Blur', min: 0, max: 5, step: 0.5, default: 2.2, unit: 'px' },

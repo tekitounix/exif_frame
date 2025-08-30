@@ -70,7 +70,7 @@ export class EditorLogic {
             framePadding: { default: false }, // false = no frame padding, true = with frame padding
             theme: { default: false }, // false = light, true = dark
             fontSize: { min: 60, max: 100, step: 10, default: 80 },
-            lineSpacing: { min: 0, max: 200, step: 10, default: 70 },
+            lineSpacing: { min: 20, max: 100, step: 5, default: 70 },
             filmType: { 
                 options: ['None', 'Superia', 'Provia', 'Velvia', 'Portra', 'Ektar', 'Gold', 'Astia', 'Tri-X', 'HP5', 'T-MAX'], 
                 default: 0 
