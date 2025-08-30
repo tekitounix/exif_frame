@@ -97,7 +97,7 @@ export class EditorView {
         
         // Calculate position based on button index and fixed width
         const buttonWidth = 44; // Fixed button width
-        const buttonGap = 12; // Gap between buttons
+        const buttonGap = 20; // Gap between buttons (matches CSS)
         const totalButtonWidth = buttonWidth + buttonGap;
         
         // Calculate the position of the active button center
@@ -784,22 +784,36 @@ export class EditorView {
         if (!this.editorControls || !this.previewContainer) return;
         
         const preview = document.querySelector('.preview');
+        const canvas = document.querySelector('.frame-canvas');
         if (!preview) return;
         
         // Function to update preview area height
         const updatePreviewHeight = () => {
-            const editorHeight = this.editorControls.offsetHeight;
+            // Use getBoundingClientRect for more accurate height including padding
+            const editorRect = this.editorControls.getBoundingClientRect();
+            const editorHeight = editorRect.height;
+            
             // Only update if editor is active/visible
             if (this.editorControls.classList.contains('active')) {
                 preview.style.bottom = `${editorHeight}px`;
+                
+                // Also update canvas max-height to prevent overlap
+                if (canvas) {
+                    const viewportHeight = window.innerHeight;
+                    const availableHeight = viewportHeight - editorHeight;
+                    canvas.style.maxHeight = `${availableHeight - 32}px`; // 32px for margin
+                }
             } else {
                 preview.style.bottom = '0px';
+                if (canvas) {
+                    canvas.style.maxHeight = 'calc(100% - 32px)';
+                }
             }
         };
         
         // Create ResizeObserver to watch editor controls height
         const resizeObserver = new ResizeObserver(() => {
-            updatePreviewHeight();
+            requestAnimationFrame(updatePreviewHeight);
         });
         
         // Start observing editor controls
@@ -807,12 +821,17 @@ export class EditorView {
         
         // Also watch for class changes on editor controls
         const observer = new MutationObserver(() => {
-            updatePreviewHeight();
+            requestAnimationFrame(updatePreviewHeight);
         });
         
         observer.observe(this.editorControls, {
             attributes: true,
             attributeFilter: ['class']
+        });
+        
+        // Watch for window resize
+        window.addEventListener('resize', () => {
+            requestAnimationFrame(updatePreviewHeight);
         });
         
         // Initial adjustment

@@ -13,6 +13,7 @@
     font-weight: 600;
     color: #111;
     margin: 0 0 16px 0;
+    font-family: 'F5.6', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
 .control-group {
@@ -33,6 +34,7 @@
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.04em;
+    font-family: 'F5.6', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
 .input, .select {
@@ -45,6 +47,7 @@
     color: #111;
     transition: all 0.15s;
     font-weight: 500;
+    font-family: 'F5.6', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
 .input:focus, .select:focus {
@@ -67,6 +70,7 @@ input[type="checkbox"] {
     color: #111;
     cursor: pointer;
     padding: 8px 0;
+    font-family: 'F5.6', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
 .checkbox-label:hover {
