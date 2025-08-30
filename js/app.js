@@ -120,7 +120,16 @@ let canvas, dropZone, preview, themes;
 let editorController;
 
 // Initialize application
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', async function() {
+    // Wait for fonts to load
+    if (document.fonts) {
+        try {
+            await document.fonts.ready;
+        } catch (e) {
+            console.warn('Font loading API not supported or fonts failed to load:', e);
+        }
+    }
+    
     // Get DOM elements
     canvas = document.getElementById('canvas');
     dropZone = document.getElementById('dropZone');
@@ -490,7 +499,7 @@ function processLoadedImage(img) {
                 });
             }
             
-            canvas.style.display = 'block';
+            canvas.style.display = ''; // Clear inline style
             if (dropZone) dropZone.style.display = 'none';
             
             // Editor is already visible, just ensure it's active
@@ -815,11 +824,11 @@ function renderCanvas() {
     const lineHMeta1st = Math.round(meta1stSize * 1.3);
     
     // Font selection
-    const fontBase = '"Barlow", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
+    const metaFontBase = '"Barlow", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
     const weights = { normal: 400, bold: 600 };
     
-    const metaFontStr = `${weights.normal} ${metaSize}px ${fontBase}`;
-    const meta1stFontStr = `${weights.bold} ${meta1stSize}px ${fontBase}`;
+    const metaFontStr = `${weights.normal} ${metaSize}px ${metaFontBase}`;
+    const meta1stFontStr = `${weights.bold} ${meta1stSize}px ${metaFontBase}`;
     
     const ctx = canvas.getContext('2d');
     
@@ -891,9 +900,7 @@ function renderCanvas() {
     // Set canvas size
     canvas.width = Math.round(W * dpr);
     canvas.height = Math.round(totalH * dpr);
-    // キャンバスのレスポンシブ表示
-    canvas.style.width = '100%';
-    canvas.style.height = 'auto';
+    // キャンバスのレスポンシブ表示 - 何も設定しない
     // デバッグ用のテスト描画を削除
     ctx.scale(dpr, dpr);
     
@@ -1085,14 +1092,14 @@ function updateCanvasDisplay() {
         const editorHeight = editorControls.offsetHeight;
         const availableHeight = viewportHeight - editorHeight;
         
-        // Update canvas max dimensions
-        const padding = 32;
-        canvas.style.maxHeight = `${availableHeight - padding}px`;
-        canvas.style.maxWidth = `calc(100% - ${padding}px)`;
+        // Update canvas max dimensions - CSSで制御するためコメントアウト
+        // const padding = 32;
+        // canvas.style.maxHeight = `${availableHeight - padding}px`;
+        // canvas.style.maxWidth = `calc(100% - ${padding}px)`;
     } else {
-        // Editor is hidden - use full viewport
-        canvas.style.maxHeight = 'calc(100vh - 32px)';
-        canvas.style.maxWidth = 'calc(100% - 32px)';
+        // Editor is hidden - use full viewport - CSSで制御するためコメントアウト
+        // canvas.style.maxHeight = 'calc(100vh - 32px)';
+        // canvas.style.maxWidth = 'calc(100% - 32px)';
     }
 }
 
@@ -1632,16 +1639,16 @@ function updatePreviewContainerHeight() {
             // Calculate available height for preview
             const availableHeight = viewportHeight - editorHeight;
             
-            // Update preview container height
-            previewContainer.style.height = `${availableHeight}px`;
-            previewContainer.style.bottom = `${editorHeight}px`;
+            // Update preview container height - コメントアウト（CSSで制御）
+            // previewContainer.style.height = `${availableHeight}px`;
+            // previewContainer.style.bottom = `${editorHeight}px`;
             
-            // Update canvas max dimensions
-            if (canvas) {
-                const padding = 32; // Total padding (16px * 2)
-                canvas.style.maxHeight = `${availableHeight - padding}px`;
-                canvas.style.maxWidth = `calc(100% - ${padding}px)`;
-            }
+            // Update canvas max dimensions - CSSで制御するためコメントアウト
+            // if (canvas) {
+            //     const padding = 32; // Total padding (16px * 2)
+            //     canvas.style.maxHeight = `${availableHeight - padding}px`;
+            //     canvas.style.maxWidth = `calc(100% - ${padding}px)`;
+            // }
             
             // Trigger render if image exists
             if (state.imageEl) {

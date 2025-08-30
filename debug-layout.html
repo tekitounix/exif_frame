@@ -3,57 +3,200 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Layout Debug</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <title>EXIF Frame Generator - Debug Layout</title>
+    <script src="https://cdn.jsdelivr.net/npm/exifr/dist/full.umd.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;600&family=Space+Mono:wght@400;700&family=Roboto+Mono:wght@400;500&family=IBM+Plex+Mono:wght@400;600&family=Overpass+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/dseg@0.46.0/css/dseg.css" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link rel="stylesheet" href="css/base.css">
     <link rel="stylesheet" href="css/canvas.css">
     <link rel="stylesheet" href="css/editor-ui.css">
+    <link rel="stylesheet" href="css/modal.css">
+    <!-- Debug CSS for colored borders -->
     <link rel="stylesheet" href="css/debug.css">
+    <style>
+        /* Force show all UI elements for debug */
+        .editor-controls {
+            opacity: 1 !important;
+            pointer-events: auto !important;
+        }
+        
+        .parameter-label.active,
+        .parameter-selector.active,
+        .slider-container.active {
+            display: block !important;
+        }
+        
+        /* Debug info overlay */
+        .debug-overlay {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 10px;
+            font-family: monospace;
+            font-size: 12px;
+            z-index: 20000;
+            border-radius: 5px;
+        }
+        
+        .debug-overlay div {
+            margin: 3px 0;
+        }
+    </style>
 </head>
 <body>
     <div class="app">
+        <!-- Preview -->
         <div class="preview-container">
-            <div class="preview">
+            <div class="preview" id="preview">
+                <canvas id="canvas" class="frame-canvas" style="display: none;"></canvas>
                 <div id="dropZone" class="drop-zone">
                     <i class="far fa-image drop-zone-icon"></i>
-                    <div class="drop-zone-text">Drop Zone</div>
+                    <div class="drop-zone-text">Drop Image or Click to Select</div>
+                    <input type="file" id="fileInput" accept="image/*,.dng,.cr2,.cr3,.nef,.arw,.orf,.rw2,.raf,.pef,.srw,.x3f" style="display: none;">
                 </div>
             </div>
         </div>
         
-        <div class="editor-controls active">
-            <div class="editor-parameters">
-                <div class="parameter-label active">Parameter Label</div>
-                <div class="parameter-selector active">
-                    <div class="parameter-icons-wrapper">
-                        <button class="parameter-btn"><i class="fas fa-sun"></i></button>
-                        <button class="parameter-btn active"><i class="fas fa-adjust"></i></button>
-                        <button class="parameter-btn"><i class="fas fa-palette"></i></button>
-                        <button class="parameter-btn"><i class="fas fa-lightbulb"></i></button>
-                        <button class="parameter-btn"><i class="fas fa-moon"></i></button>
+        <!-- Editor Controls - Outside preview container -->
+        <div class="editor-controls active" id="editorControls">
+                <div class="editor-parameters">
+                    <div class="parameter-label active" id="parameterLabel">
+                        Brightness
                     </div>
-                </div>
-                <div class="slider-container active">
-                    <div class="slider-wrapper">
-                        <div class="ios-slider-container">
-                            <div class="ios-slider-center"></div>
+                    <div class="parameter-selector active" id="parameterSelector">
+                        <div class="parameter-icons-wrapper">
+                            <button class="parameter-btn" data-param="brightness" data-type="slider">
+                                <span class="parameter-icon"><i class="fas fa-sun"></i></span>
+                                <span class="parameter-value" data-param="brightness">0</span>
+                            </button>
+                            <button class="parameter-btn active" data-param="contrast" data-type="slider">
+                                <span class="parameter-icon"><i class="fas fa-adjust"></i></span>
+                                <span class="parameter-value" data-param="contrast">0</span>
+                            </button>
+                            <button class="parameter-btn" data-param="saturation" data-type="slider">
+                                <span class="parameter-icon"><i class="fas fa-palette"></i></span>
+                                <span class="parameter-value" data-param="saturation">0</span>
+                            </button>
+                            <button class="parameter-btn" data-param="exposure" data-type="slider">
+                                <span class="parameter-icon"><i class="fas fa-lightbulb"></i></span>
+                                <span class="parameter-value" data-param="exposure">0</span>
+                            </button>
+                            <button class="parameter-btn" data-param="highlights" data-type="slider">
+                                <span class="parameter-icon"><i class="fas fa-cloud-sun"></i></span>
+                                <span class="parameter-value" data-param="highlights">0</span>
+                            </button>
+                            <button class="parameter-btn" data-param="shadows" data-type="slider">
+                                <span class="parameter-icon"><i class="fas fa-moon"></i></span>
+                                <span class="parameter-value" data-param="shadows">0</span>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="slider-container active" id="sliderContainer">
+                        <div class="slider-wrapper" id="sliderWrapper">
+                            <div class="ios-slider-container">
+                                <div class="ios-slider-center"></div>
+                                <div class="ios-slider-value-dot"></div>
+                                <div class="ios-slider-scale">
+                                    <!-- Sample scale marks -->
+                                    <div class="ios-slider-mark major"></div>
+                                    <div class="ios-slider-mark minor"></div>
+                                    <div class="ios-slider-mark minor"></div>
+                                    <div class="ios-slider-mark minor"></div>
+                                    <div class="ios-slider-mark minor"></div>
+                                    <div class="ios-slider-mark major"></div>
+                                    <div class="ios-slider-mark minor"></div>
+                                    <div class="ios-slider-mark minor"></div>
+                                    <div class="ios-slider-mark minor"></div>
+                                    <div class="ios-slider-mark minor"></div>
+                                    <div class="ios-slider-mark major"></div>
+                                </div>
+                                <input type="range" class="ios-slider" style="display: none;">
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-            <div class="editor-icons">
-                <div class="tool-icons-container">
-                    <button class="editor-icon tool-btn active"><i class="fas fa-image"></i></button>
-                    <button class="editor-icon tool-btn"><i class="fas fa-crop-alt"></i></button>
-                    <button class="editor-icon tool-btn"><i class="fas fa-sliders-h"></i></button>
-                    <button class="editor-icon tool-btn"><i class="fas fa-film"></i></button>
-                    <span class="editor-separator"></span>
-                    <button class="editor-icon"><i class="fas fa-folder-open"></i></button>
-                    <button class="editor-icon"><i class="fas fa-download"></i></button>
-                    <button class="editor-icon"><i class="fas fa-cog"></i></button>
+                <div class="editor-icons" id="editorIcons">
+                    <div class="tool-icons-container">
+                        <button type="button" class="editor-icon tool-btn" data-tool="frame" id="frameBtn" title="Frame Settings">
+                            <svg class="polaroid-icon" viewBox="0 0 448 512" fill="currentColor" width="20" height="20">
+                                <path d="M400 32H48C21.5 32 0 53.5 0 80v352c0 26.5 21.5 48 48 48h352c26.5 0 48-21.5 48-48V80c0-26.5-21.5-48-48-48zm-16 400H64V80h320v352zM320 128H128c-8.8 0-16 7.2-16 16v160c0 8.8 7.2 16 16 16h192c8.8 0 16-7.2 16-16V144c0-8.8-7.2-16-16-16z"/>
+                            </svg>
+                        </button>
+                        <button type="button" class="editor-icon tool-btn" data-tool="crop" id="cropBtn" title="Crop & Transform"><i class="fas fa-crop-alt"></i></button>
+                        <button type="button" class="editor-icon tool-btn active" data-tool="adjust" id="adjustBtn" title="Adjust Colors"><i class="fas fa-sliders-h"></i></button>
+                        <button type="button" class="editor-icon tool-btn" data-tool="film" id="filmBtn" title="Film"><i class="fas fa-film"></i></button>
+                        <span class="editor-separator"></span>
+                        <button type="button" class="editor-icon" id="uploadBtn" title="Import Image"><i class="fas fa-folder-open"></i></button>
+                        <button type="button" class="editor-icon" id="exportBtn" title="Export Image"><i class="fas fa-download"></i></button>
+                        <button type="button" class="editor-icon" id="settingsBtn" title="Options"><i class="fas fa-cog"></i></button>
+                    </div>
+                </div>
+        </div>
+
+        <!-- Settings Modal (hidden for debug) -->
+        <div class="modal" id="settingsModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title">EXIF Settings</h2>
+                    <button class="modal-close" id="modalClose">×</button>
                 </div>
             </div>
         </div>
     </div>
+    
+    <!-- Debug info overlay -->
+    <div class="debug-overlay">
+        <div><strong>Debug Layout View</strong></div>
+        <div>Screen: <span id="screenSize">-</span></div>
+        <div>Viewport: <span id="viewportSize">-</span></div>
+        <div>Preview Container: <span id="previewContainerSize">-</span></div>
+        <div>Editor Controls: <span id="editorControlsSize">-</span></div>
+    </div>
+    
+    <script type="module">
+        // Import just the EditorView for layout adjustment
+        import { EditorView } from './js/editor-view.js';
+        
+        // Initialize view for dynamic layout adjustment
+        const view = new EditorView();
+        
+        // Update debug info
+        function updateDebugInfo() {
+            document.getElementById('screenSize').textContent = `${window.screen.width}×${window.screen.height}`;
+            document.getElementById('viewportSize').textContent = `${window.innerWidth}×${window.innerHeight}`;
+            
+            const previewContainer = document.querySelector('.preview-container');
+            const editorControls = document.querySelector('.editor-controls');
+            
+            if (previewContainer) {
+                const rect = previewContainer.getBoundingClientRect();
+                document.getElementById('previewContainerSize').textContent = 
+                    `${rect.width.toFixed(0)}×${rect.height.toFixed(0)}`;
+            }
+            
+            if (editorControls) {
+                const rect = editorControls.getBoundingClientRect();
+                document.getElementById('editorControlsSize').textContent = 
+                    `${rect.width.toFixed(0)}×${rect.height.toFixed(0)}`;
+            }
+        }
+        
+        // Initialize and update on resize
+        updateDebugInfo();
+        window.addEventListener('resize', updateDebugInfo);
+        
+        // Simulate parameter icon centering
+        const wrapper = document.querySelector('.parameter-icons-wrapper');
+        if (wrapper) {
+            setTimeout(() => {
+                wrapper.style.transform = 'translateX(-64px)';
+            }, 100);
+        }
+    </script>
 </body>
 </html>

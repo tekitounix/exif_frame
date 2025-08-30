@@ -21,6 +21,8 @@
     pointer-events: none;
     max-height: 50vh; /* Limit maximum height */
     transition: opacity 0.2s ease;
+    overflow-y: auto; /* Allow scrolling if content overflows */
+    -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
 }
 
 .editor-controls.active {
@@ -41,7 +43,12 @@
 .editor-parameters {
     display: flex;
     flex-direction: column; /* Stack from top to bottom - correct order */
-    background: transparent;
+    background: linear-gradient(to bottom, 
+        rgba(28, 28, 30, 0.8) 0%, 
+        rgba(28, 28, 30, 0.4) 50%, 
+        transparent 100%);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
     /* This will expand as needed */
 }
 
@@ -108,8 +115,12 @@
     font-size: 13px;
     font-weight: 400;
     color: rgba(255, 255, 255, 0.9);
-    padding: 5px 0 10px; /* Reduced top padding since parameters are now in correct order */
+    padding: 12px 0 8px; /* More padding to separate from preview */
+    background: rgba(28, 28, 30, 0.8);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
     flex-shrink: 0;
+    margin-bottom: 4px;
 }
 
 .parameter-label.active {
@@ -132,12 +143,12 @@
 
 /* Mobile-specific adjustments */
 @media (max-width: 768px) {
-    /* Ensure proper spacing on mobile */
+    /* Keep the gradient background on mobile */
     .editor-parameters {
-        /* Add subtle gradient to separate from content */
         background: linear-gradient(to bottom, 
-            transparent 0%, 
-            rgba(28, 28, 30, 0.3) 100%);
+            rgba(28, 28, 30, 0.8) 0%, 
+            rgba(28, 28, 30, 0.4) 50%, 
+            transparent 100%);
     }
     
     .parameter-selector {
@@ -146,6 +157,7 @@
     
     .parameter-icons-wrapper {
         padding: 0 10px;
+        gap: 15px; /* Reduce gap on mobile */
     }
     
     .slider-container {
@@ -166,6 +178,22 @@
     
     .editor-separator {
         margin: 0 4px;
+    }
+    
+    /* Parameter buttons smaller on mobile */
+    .parameter-btn {
+        width: 40px;
+        height: 40px;
+    }
+    
+    .parameter-btn .parameter-icon i {
+        font-size: 16px;
+    }
+    
+    /* Adjust label padding on mobile */
+    .parameter-label {
+        padding: 8px 0 6px;
+        font-size: 12px;
     }
 }
 

@@ -95,28 +95,29 @@ export class EditorView {
         const buttons = wrapper.querySelectorAll('.parameter-btn');
         if (!buttons[activeIndex]) return;
         
-        // Force layout recalculation
-        wrapper.offsetWidth;
+        // Calculate position based on button index and fixed width
+        const buttonWidth = 44; // Fixed button width
+        const buttonGap = 12; // Gap between buttons
+        const totalButtonWidth = buttonWidth + buttonGap;
         
-        // Get actual positions of buttons
-        const activeBtn = buttons[activeIndex];
-        const wrapperRect = wrapper.getBoundingClientRect();
-        const btnRect = activeBtn.getBoundingClientRect();
-        
-        // Calculate button center relative to wrapper
-        const btnCenterInWrapper = (btnRect.left - wrapperRect.left) + (btnRect.width / 2);
+        // Calculate the position of the active button center
+        const btnCenterPosition = (activeIndex * totalButtonWidth) + (buttonWidth / 2);
         
         // Get container center
         const containerWidth = this.parameterSelector.offsetWidth;
         const containerCenter = containerWidth / 2;
         
-        // Calculate offset needed to center the button
-        const currentTransform = wrapper.style.transform || 'translateX(0px)';
-        const currentOffset = parseFloat(currentTransform.match(/translateX\(([\-\d.]+)px\)/)?.[1] || 0);
-        const targetOffset = currentOffset + (containerCenter - btnCenterInWrapper);
+        // Calculate offset to center the active button
+        const targetOffset = containerCenter - btnCenterPosition;
         
-        // Apply transform
+        // Apply smooth transition
+        wrapper.style.transition = 'transform 0.3s ease';
         wrapper.style.transform = `translateX(${targetOffset}px)`;
+        
+        // Remove transition after animation
+        setTimeout(() => {
+            wrapper.style.transition = '';
+        }, 300);
     }
 
     // Update active parameter button and slide to center
@@ -782,12 +783,15 @@ export class EditorView {
     setupLayoutAdjustment() {
         if (!this.editorControls || !this.previewContainer) return;
         
+        const preview = document.querySelector('.preview');
+        if (!preview) return;
+        
         // Create ResizeObserver to watch editor controls height
         const resizeObserver = new ResizeObserver(entries => {
             for (const entry of entries) {
                 const height = entry.contentRect.height;
-                // Update preview container padding
-                this.previewContainer.style.paddingBottom = `${height}px`;
+                // Update preview bottom based on editor controls
+                preview.style.bottom = `${height}px`;
             }
         });
         
@@ -796,6 +800,6 @@ export class EditorView {
         
         // Initial adjustment
         const initialHeight = this.editorControls.offsetHeight;
-        this.previewContainer.style.paddingBottom = `${initialHeight}px`;
+        preview.style.bottom = `${initialHeight}px`;
     }
 }
