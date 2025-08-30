@@ -95,20 +95,28 @@ export class EditorView {
         const buttons = wrapper.querySelectorAll('.parameter-btn');
         if (!buttons[activeIndex]) return;
         
-        // Calculate position based on button index and fixed width
-        const buttonWidth = 44; // Fixed button width
-        const buttonGap = 20; // Gap between buttons (matches CSS)
-        const totalButtonWidth = buttonWidth + buttonGap;
+        const activeBtn = buttons[activeIndex];
+        const container = this.parameterSelector;
         
-        // Calculate the position of the active button center
-        const btnCenterPosition = (activeIndex * totalButtonWidth) + (buttonWidth / 2);
+        // Get current transform value
+        const currentTransform = window.getComputedStyle(wrapper).transform;
+        let currentX = 0;
+        if (currentTransform !== 'none') {
+            const values = currentTransform.match(/matrix.*\((.+)\)/)[1].split(', ');
+            currentX = parseFloat(values[4]);
+        }
+        
+        // Get button position relative to wrapper
+        const btnOffsetLeft = activeBtn.offsetLeft;
+        const btnWidth = activeBtn.offsetWidth;
+        const btnCenter = btnOffsetLeft + (btnWidth / 2);
         
         // Get container center
-        const containerWidth = this.parameterSelector.offsetWidth;
+        const containerWidth = container.offsetWidth;
         const containerCenter = containerWidth / 2;
         
-        // Calculate offset to center the active button
-        const targetOffset = containerCenter - btnCenterPosition;
+        // Calculate new offset
+        const targetOffset = currentX + (containerCenter - btnCenter);
         
         // Apply smooth transition
         wrapper.style.transition = 'transform 0.3s ease';
