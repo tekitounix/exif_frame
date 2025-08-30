@@ -525,12 +525,33 @@ body {
 @media (max-width: 768px) {
     .slider-container {
         /* Add extra padding for Android navigation bar */
-        bottom: calc(90px + env(safe-area-inset-bottom));
+        bottom: 110px;
+        bottom: calc(110px + env(safe-area-inset-bottom));
     }
     
     .parameter-selector {
         /* Adjust position on mobile */
-        top: 50px;
+        top: 40px;
+    }
+    
+    /* Ensure editor controls have enough space */
+    .editor-controls {
+        padding-bottom: 20px;
+        padding-bottom: env(safe-area-inset-bottom, 20px);
+    }
+    
+    /* Additional space for parameter label on mobile */
+    .parameter-label {
+        top: 15px;
+    }
+}
+
+/* Android-specific adjustments using user agent detection */
+@supports (-webkit-appearance: none) and (not (-moz-appearance: none)) {
+    @media (max-width: 768px) {
+        .slider-container {
+            bottom: 120px;
+        }
     }
 }
 
