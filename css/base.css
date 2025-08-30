@@ -3,10 +3,8 @@
 /* Font Faces */
 @font-face {
     font-family: 'F5.6';
-    src: url('f5_6_0110/Web Font/F5.6-Regular.eot');
-    src: url('f5_6_0110/Web Font/F5.6-Regular.eot?#iefix') format('embedded-opentype'),
-         url('f5_6_0110/Web Font/F5.6-Regular.woff2') format('woff2'),
-         url('f5_6_0110/Web Font/F5.6-Regular.woff') format('woff');
+    src: url('../assets/fonts/F5.6-Regular.woff2') format('woff2'),
+         url('../assets/fonts/F5.6-Regular.woff') format('woff');
     font-weight: normal;
     font-style: normal;
     font-display: swap;
