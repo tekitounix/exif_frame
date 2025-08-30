@@ -19,7 +19,8 @@
     touch-action: pan-y;
     opacity: 0.5;
     pointer-events: none;
-    /* Dynamic height based on content */
+    max-height: 50vh; /* Limit maximum height */
+    transition: opacity 0.2s ease;
 }
 
 .editor-controls.active {
@@ -29,9 +30,10 @@
 
 @media (min-width: 768px) {
     .editor-controls {
-        max-width: 600px;
-        left: 50%;
-        transform: translateX(-50%);
+        /* Remove max-width restriction on desktop */
+        /* Center using margin auto instead of transform */
+        left: 0;
+        right: 0;
     }
 }
 
@@ -46,7 +48,7 @@
 /* Tool Icons Bar - Always at bottom */
 .editor-icons {
     display: flex;
-    justify-content: space-around;
+    justify-content: center;
     align-items: center;
     padding: 10px 0;
     padding-bottom: calc(10px + env(safe-area-inset-bottom, 0));
@@ -55,15 +57,20 @@
     -webkit-backdrop-filter: blur(20px);
     border-top: 0.5px solid rgba(60, 60, 67, 0.36);
     flex-shrink: 0;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .tool-icons-container {
     display: flex;
-    justify-content: space-around;
+    justify-content: center;
     align-items: center;
     width: 100%;
+    max-width: 600px;
     gap: 10px;
-    padding: 0 20px;
+    padding: 0 16px;
+    box-sizing: border-box;
+    margin: 0 auto;
 }
 
 /* Slider Container */
@@ -84,8 +91,10 @@
     height: 60px;
     padding: 10px 0;
     background: transparent;
-    overflow: visible;
+    overflow: hidden; /* Prevent horizontal scrolling */
     flex-shrink: 0;
+    position: relative;
+    width: 100%;
 }
 
 .parameter-selector.active {
@@ -99,7 +108,7 @@
     font-size: 13px;
     font-weight: 400;
     color: rgba(255, 255, 255, 0.9);
-    padding: 20px 0 15px; /* Increased spacing from parameter icons */
+    padding: 5px 0 10px; /* Reduced top padding since parameters are now in correct order */
     flex-shrink: 0;
 }
 
@@ -109,14 +118,16 @@
 
 /* Parameter icons wrapper */
 .parameter-icons-wrapper {
-    display: flex;
+    display: inline-flex;
     justify-content: flex-start;
     align-items: center;
     gap: 20px;
     height: 100%;
     transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
     will-change: transform;
-    padding: 0 20px;
+    padding: 0;
+    position: relative;
+    white-space: nowrap;
 }
 
 /* Mobile-specific adjustments */
@@ -139,6 +150,59 @@
     
     .slider-container {
         padding: 10px 0 20px;
+    }
+    
+    /* Reduce gaps on mobile */
+    .tool-icons-container {
+        gap: 6px;
+        padding: 0 12px;
+    }
+    
+    .editor-icon {
+        width: 40px;
+        height: 40px;
+        font-size: 18px;
+    }
+    
+    .editor-separator {
+        margin: 0 4px;
+    }
+}
+
+/* Smaller mobile screens */
+@media (max-width: 480px) {
+    .editor-icon {
+        width: 36px;
+        height: 36px;
+        font-size: 16px;
+    }
+    
+    .tool-icons-container {
+        gap: 4px;
+        padding: 0 8px;
+    }
+    
+    .editor-separator {
+        margin: 0 2px;
+        height: 24px;
+    }
+}
+
+/* Very small screens */
+@media (max-width: 360px) {
+    .editor-icon {
+        width: 32px;
+        height: 32px;
+        font-size: 14px;
+    }
+    
+    .tool-icons-container {
+        gap: 2px;
+        padding: 0 4px;
+    }
+    
+    .editor-separator {
+        display: none;
     }
 }
 

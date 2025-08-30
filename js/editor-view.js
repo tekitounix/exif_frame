@@ -7,6 +7,10 @@ export class EditorView {
         this.sliderWrapper = document.getElementById('sliderWrapper');
         this.editorControls = document.getElementById('editorControls');
         this.parameterLabel = document.getElementById('parameterLabel');
+        this.previewContainer = document.querySelector('.preview-container');
+        
+        // Setup resize observer to adjust layout
+        this.setupLayoutAdjustment();
     }
 
     // Show/hide editor
@@ -89,32 +93,30 @@ export class EditorView {
         if (!wrapper) return;
         
         const buttons = wrapper.querySelectorAll('.parameter-btn');
-        const totalButtons = buttons.length;
-        const baseButtonWidth = 44;
-        const gap = 20;
+        if (!buttons[activeIndex]) return;
         
-        // Get the actual scaled width of the active button
+        // Force layout recalculation
+        wrapper.offsetWidth;
+        
+        // Get actual positions of buttons
         const activeBtn = buttons[activeIndex];
-        if (!activeBtn) return;
+        const wrapperRect = wrapper.getBoundingClientRect();
+        const btnRect = activeBtn.getBoundingClientRect();
         
-        // Account for scale transform on active button (1.2x)
-        const scaledButtonWidth = activeBtn.classList.contains('active') ? baseButtonWidth * 1.2 : baseButtonWidth;
+        // Calculate button center relative to wrapper
+        const btnCenterInWrapper = (btnRect.left - wrapperRect.left) + (btnRect.width / 2);
         
-        // Calculate position considering the scaled width
-        let position = 0;
-        for (let i = 0; i < activeIndex; i++) {
-            const btn = buttons[i];
-            const btnWidth = btn.classList.contains('active') ? baseButtonWidth * 1.2 : baseButtonWidth;
-            position += btnWidth + gap;
-        }
-        
-        // Add half of the active button width to get its center
-        position += scaledButtonWidth / 2;
-        
+        // Get container center
         const containerWidth = this.parameterSelector.offsetWidth;
-        const offset = (containerWidth / 2) - position;
+        const containerCenter = containerWidth / 2;
         
-        wrapper.style.transform = `translateX(${offset}px)`;
+        // Calculate offset needed to center the button
+        const currentTransform = wrapper.style.transform || 'translateX(0px)';
+        const currentOffset = parseFloat(currentTransform.match(/translateX\(([\-\d.]+)px\)/)?.[1] || 0);
+        const targetOffset = currentOffset + (containerCenter - btnCenterInWrapper);
+        
+        // Apply transform
+        wrapper.style.transform = `translateX(${targetOffset}px)`;
     }
 
     // Update active parameter button and slide to center
@@ -774,5 +776,26 @@ export class EditorView {
     // Get parameter buttons
     getParameterButtons() {
         return this.parameterSelector.querySelectorAll('.parameter-btn');
+    }
+    
+    // Setup layout adjustment
+    setupLayoutAdjustment() {
+        if (!this.editorControls || !this.previewContainer) return;
+        
+        // Create ResizeObserver to watch editor controls height
+        const resizeObserver = new ResizeObserver(entries => {
+            for (const entry of entries) {
+                const height = entry.contentRect.height;
+                // Update preview container padding
+                this.previewContainer.style.paddingBottom = `${height}px`;
+            }
+        });
+        
+        // Start observing editor controls
+        resizeObserver.observe(this.editorControls);
+        
+        // Initial adjustment
+        const initialHeight = this.editorControls.offsetHeight;
+        this.previewContainer.style.paddingBottom = `${initialHeight}px`;
     }
 }
