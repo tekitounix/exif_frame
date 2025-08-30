@@ -99,7 +99,7 @@
     font-size: 13px;
     font-weight: 400;
     color: rgba(255, 255, 255, 0.9);
-    padding: 15px 0 5px;
+    padding: 20px 0 15px; /* Increased spacing from parameter icons */
     flex-shrink: 0;
 }
 
@@ -230,6 +230,10 @@
     transform: scale(1.2);
     /* Ensure content stays centered during scale */
     transform-origin: center center;
+    /* Fix for icon offset issue */
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 /* Progress ring for edited parameters */
@@ -282,11 +286,17 @@
     justify-content: center;
     width: 100%;
     height: 100%;
+    /* Reset any default margins */
+    margin: 0;
+    padding: 0;
 }
 
 .parameter-icon i {
     font-size: 18px;
     display: block;
+    /* Center icon properly */
+    margin: 0 auto;
+    text-align: center;
 }
 
 .parameter-value {
