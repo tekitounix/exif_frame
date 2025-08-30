@@ -98,6 +98,8 @@ export class EditorView {
         const activeBtn = buttons[activeIndex];
         const container = this.parameterSelector;
         
+        console.log(`centerParameterButton: index ${activeIndex}, button: ${activeBtn.dataset.param}`);
+        
         // Get button position relative to wrapper
         const btnOffsetLeft = activeBtn.offsetLeft;
         const btnWidth = activeBtn.offsetWidth;
@@ -144,6 +146,8 @@ export class EditorView {
             btn.classList.toggle('active', isActive);
             if (isActive) activeIndex = index;
         });
+        
+        console.log(`setActiveParameter: ${paramId}, activeIndex: ${activeIndex}`);
         
         // Slide active button to center
         if (activeIndex >= 0) {
