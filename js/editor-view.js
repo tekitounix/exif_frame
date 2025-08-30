@@ -113,16 +113,20 @@ export class EditorView {
         // Get wrapper total width
         const wrapperWidth = wrapper.scrollWidth;
         
-        // Calculate bounds to keep content visible
-        const minOffset = containerWidth - wrapperWidth;
-        const maxOffset = 0;
-        
-        // Clamp the offset to keep icons visible
-        const clampedOffset = Math.max(minOffset, Math.min(maxOffset, targetOffset));
+        // Only apply bounds if wrapper is wider than container
+        let finalOffset = targetOffset;
+        if (wrapperWidth > containerWidth) {
+            // Calculate bounds to keep content visible
+            const minOffset = containerWidth - wrapperWidth;
+            const maxOffset = 0;
+            
+            // Clamp the offset to keep icons visible
+            finalOffset = Math.max(minOffset, Math.min(maxOffset, targetOffset));
+        }
         
         // Apply smooth transition
         wrapper.style.transition = 'transform 0.3s ease';
-        wrapper.style.transform = `translateX(${clampedOffset}px)`;
+        wrapper.style.transform = `translateX(${finalOffset}px)`;
         
         // Remove transition after animation
         setTimeout(() => {
