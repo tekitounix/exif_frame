@@ -3,20 +3,13 @@
 /* Font Faces */
 @font-face {
     font-family: 'F5.6';
-    src: url('../assets/fonts/F5.6-Regular.woff2') format('woff2'),
-         url('../assets/fonts/F5.6-Regular.woff') format('woff');
+    src: url('/exif_frame/assets/fonts/F5.6-Regular.woff2') format('woff2'),
+         url('/exif_frame/assets/fonts/F5.6-Regular.woff') format('woff');
     font-weight: normal;
     font-style: normal;
     font-display: swap;
 }
 
-/* Fallback for F5.6 if custom font fails to load */
-@supports not (font-family: 'F5.6') {
-    .parameter-value,
-    .ios-collection-item {
-        font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace !important;
-    }
-}
 
 @font-face {
     font-family: 'DSEG14-Modern-MINI';

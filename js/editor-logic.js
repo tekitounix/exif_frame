@@ -197,6 +197,7 @@ export class EditorLogic {
 
     // Update parameter value in state
     updateParamValue(paramId, value) {
+        console.log('Updating param:', paramId, 'to value:', value);
         switch (paramId) {
             case 'rotation':
                 this.state.rotation = value;
