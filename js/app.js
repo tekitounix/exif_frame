@@ -121,6 +121,16 @@ let editorController;
 
 // Initialize application
 document.addEventListener('DOMContentLoaded', async function() {
+    // Set viewport height for mobile
+    function setViewportHeight() {
+        const vh = window.innerHeight * 0.01;
+        document.documentElement.style.setProperty('--vh', `${vh}px`);
+    }
+    
+    setViewportHeight();
+    window.addEventListener('resize', setViewportHeight);
+    window.addEventListener('orientationchange', setViewportHeight);
+    
     // Wait for fonts to load
     if (document.fonts) {
         try {
