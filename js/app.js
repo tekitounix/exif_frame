@@ -280,15 +280,7 @@ document.addEventListener('DOMContentLoaded', async function() {
 // Update EXIF placeholders with actual values
 function updateEXIFPlaceholders() {
     const camera = [state.exif?.Make, state.exif?.Model].filter(Boolean).join(' ');
-    // Handle lens information - filter out "N/A" and provide appropriate fallback
-    let lens = state.exif?.LensModel || state.exif?.LensSpecification || state.exif?.LensMake || '';
-    if (lens === 'N/A' || lens === 'n/a') {
-        // For compact cameras with built-in lens, show nothing
-        lens = '';
-    } else if (!lens && state.exif?.FocalLength) {
-        // For old lenses without electronic contacts, show focal length if available
-        lens = `${Math.round(state.exif.FocalLength)}mm`;
-    }
+    const lens = state.exif?.LensModel || state.exif?.LensSpecification || state.exif?.LensMake || '';
     const aperture = fmtAperture(state.exif?.FNumber ?? state.exif?.ApertureValue);
     const shutter = fmtExposure(state.exif?.ExposureTime ?? state.exif?.ShutterSpeedValue);
     const iso = state.exif?.ISO ?? state.exif?.ISOSpeedRatings;
@@ -855,15 +847,7 @@ function renderCanvas() {
     
     // Extract data with overrides
     const camera = state.cameraOverride || [state.exif?.Make, state.exif?.Model].filter(Boolean).join(' ');
-    // Handle lens information - filter out "N/A" and provide appropriate fallback
-    let lens = state.lensOverride || state.exif?.LensModel || state.exif?.LensSpecification || state.exif?.LensMake || '';
-    if (lens === 'N/A' || lens === 'n/a') {
-        // For compact cameras with built-in lens, show nothing
-        lens = '';
-    } else if (!lens && state.exif?.FocalLength) {
-        // For old lenses without electronic contacts, show focal length if available
-        lens = `${Math.round(state.exif.FocalLength)}mm`;
-    }
+    const lens = state.lensOverride || state.exif?.LensModel || state.exif?.LensSpecification || state.exif?.LensMake || '';
     const aperture = state.apertureOverride || fmtAperture(state.exif?.FNumber ?? state.exif?.ApertureValue);
     const shutter = state.shutterOverride || fmtExposure(state.exif?.ExposureTime ?? state.exif?.ShutterSpeedValue);
     const iso = state.isoOverride || (state.exif?.ISO ?? state.exif?.ISOSpeedRatings);
