@@ -21,7 +21,6 @@
     pointer-events: none;
     transition: opacity 0.2s ease;
     overflow: hidden; /* Prevent scrolling */
-    padding-bottom: env(safe-area-inset-bottom, 0); /* Safe area for home indicator */
 }
 
 .editor-controls.active {
