@@ -98,14 +98,6 @@ export class EditorView {
         const activeBtn = buttons[activeIndex];
         const container = this.parameterSelector;
         
-        // Get current transform value
-        const currentTransform = window.getComputedStyle(wrapper).transform;
-        let currentX = 0;
-        if (currentTransform !== 'none') {
-            const values = currentTransform.match(/matrix.*\((.+)\)/)[1].split(', ');
-            currentX = parseFloat(values[4]);
-        }
-        
         // Get button position relative to wrapper
         const btnOffsetLeft = activeBtn.offsetLeft;
         const btnWidth = activeBtn.offsetWidth;
@@ -115,12 +107,22 @@ export class EditorView {
         const containerWidth = container.offsetWidth;
         const containerCenter = containerWidth / 2;
         
-        // Calculate new offset
-        const targetOffset = currentX + (containerCenter - btnCenter);
+        // Calculate offset to center the active button
+        const targetOffset = containerCenter - btnCenter;
+        
+        // Get wrapper total width
+        const wrapperWidth = wrapper.scrollWidth;
+        
+        // Calculate bounds to keep content visible
+        const minOffset = containerWidth - wrapperWidth;
+        const maxOffset = 0;
+        
+        // Clamp the offset to keep icons visible
+        const clampedOffset = Math.max(minOffset, Math.min(maxOffset, targetOffset));
         
         // Apply smooth transition
         wrapper.style.transition = 'transform 0.3s ease';
-        wrapper.style.transform = `translateX(${targetOffset}px)`;
+        wrapper.style.transform = `translateX(${clampedOffset}px)`;
         
         // Remove transition after animation
         setTimeout(() => {
