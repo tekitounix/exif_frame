@@ -10,6 +10,14 @@
     font-display: swap;
 }
 
+/* Fallback for F5.6 if custom font fails to load */
+@supports not (font-family: 'F5.6') {
+    .parameter-value,
+    .ios-collection-item {
+        font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace !important;
+    }
+}
+
 @font-face {
     font-family: 'DSEG14-Modern-MINI';
     src: url('https://cdn.jsdelivr.net/npm/dseg@0.46.0/fonts/DSEG14-Modern/DSEG14-Modern-MINI.woff2') format('woff2'),
