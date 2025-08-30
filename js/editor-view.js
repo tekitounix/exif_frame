@@ -407,7 +407,11 @@ export class EditorView {
                 if (lastValue !== finalValue) {
                     lastValue = finalValue;
                     input.value = finalValue;
-                    input.dispatchEvent(new Event('input', { bubbles: true }));
+                    // Throttle input events
+                    clearTimeout(this.inputTimeout);
+                    this.inputTimeout = setTimeout(() => {
+                        input.dispatchEvent(new Event('input', { bubbles: true }));
+                    }, 16); // ~60fps
                 }
             });
         };

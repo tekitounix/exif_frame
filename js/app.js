@@ -760,23 +760,22 @@ function updateUploadBtnVisibility() {
     }
 }
 
-// Rendering
+// Rendering with debouncing
+let renderTimeout = null;
 function render() {
     if (!state.imageEl) {
         return;
     }
     
-    // Use requestAnimationFrame for smooth updates
-    if (state.renderPending) return;
-    state.renderPending = true;
+    // Cancel pending render
+    if (renderTimeout) {
+        cancelAnimationFrame(renderTimeout);
+    }
     
-    requestAnimationFrame(() => {
-        state.renderPending = false;
-        // Add performance timing
-        const startTime = performance.now();
+    // Use requestAnimationFrame for smooth updates
+    renderTimeout = requestAnimationFrame(() => {
+        renderTimeout = null;
         renderCanvas();
-        const endTime = performance.now();
-        console.log(`Render time: ${(endTime - startTime).toFixed(2)}ms`);
     });
 }
 
@@ -937,49 +936,79 @@ function renderCanvas() {
     // Restore canvas state
     ctx.restore();
     
-    // Apply film filter if selected
+    // Apply film filter if selected (optimized version)
     if (state.filmType && state.filmType > 0) {
         const filterNames = Object.keys(FILM_FILTERS);
         const filterName = filterNames[state.filmType];
+        const filter = FILM_FILTERS[filterName];
         
-        if (filterName && filterName !== 'None') {
+        if (filter && filterName !== 'None') {
             ctx.save();
             
-            // Create a temporary canvas for the image area only
-            const tempCanvas = document.createElement('canvas');
-            tempCanvas.width = imageDrawW;
-            tempCanvas.height = imageDrawH;
-            const tempCtx = tempCanvas.getContext('2d');
+            // Use CSS filters for basic adjustments (much faster)
+            const strength = (state.filmStrength || 70) / 100;
+            const filters = [];
             
-            // Draw from the original image source, not from the canvas
+            if (filter.saturation !== undefined) {
+                const sat = 1 + (filter.saturation - 1) * strength;
+                filters.push(`saturate(${sat})`);
+            }
+            
+            if (filter.contrast !== undefined) {
+                const con = 1 + (filter.contrast - 1) * strength;
+                filters.push(`contrast(${con})`);
+            }
+            
+            // Apply basic color shift for film looks
+            if (filterName === 'Portra' || filterName === 'Gold' || filterName === 'Superia') {
+                filters.push(`sepia(${0.15 * strength})`);
+                filters.push(`hue-rotate(${5 * strength}deg)`);
+            } else if (filterName === 'Velvia') {
+                filters.push(`saturate(${1 + 0.2 * strength})`);
+                filters.push(`hue-rotate(${-5 * strength}deg)`);
+            } else if (filterName === 'Ektar') {
+                filters.push(`hue-rotate(${-3 * strength}deg)`);
+            }
+            
+            // B&W filters
+            if (filterName === 'Tri-X' || filterName === 'HP5' || filterName === 'T-MAX') {
+                filters.push('grayscale(1)');
+                if (filterName === 'Tri-X') {
+                    filters.push(`contrast(${1.2})`);
+                    filters.push(`brightness(${0.95})`);
+                } else if (filterName === 'HP5') {
+                    filters.push(`contrast(${1.1})`);
+                } else if (filterName === 'T-MAX') {
+                    filters.push(`contrast(${1.15})`);
+                    filters.push(`brightness(${1.05})`);
+                }
+            }
+            
+            if (filters.length > 0) {
+                ctx.filter = filters.join(' ');
+            }
+            
+            // Redraw the image area with filters applied
             if (state.frameOrientation) {
-                // When frame orientation is rotated, use the same cropping logic
                 const srcAspect = state.imageEl.naturalWidth / state.imageEl.naturalHeight;
                 const dstAspect = imageDrawW / imageDrawH;
                 
                 let srcX = 0, srcY = 0, srcW = state.imageEl.naturalWidth, srcH = state.imageEl.naturalHeight;
                 
                 if (srcAspect > dstAspect) {
-                    // Source is wider - crop left and right
                     srcW = state.imageEl.naturalHeight * dstAspect;
                     srcX = (state.imageEl.naturalWidth - srcW) / 2;
                 } else {
-                    // Source is taller - crop top and bottom
                     srcH = state.imageEl.naturalWidth / dstAspect;
                     srcY = (state.imageEl.naturalHeight - srcH) / 2;
                 }
                 
-                tempCtx.drawImage(state.imageEl, srcX, srcY, srcW, srcH, 0, 0, imageDrawW, imageDrawH);
+                ctx.drawImage(state.imageEl, srcX, srcY, srcW, srcH, imagePad, imagePad, imageDrawW, imageDrawH);
             } else {
-                // Normal drawing - draw from original image
-                tempCtx.drawImage(state.imageEl, 0, 0, state.imageEl.naturalWidth, state.imageEl.naturalHeight, 0, 0, imageDrawW, imageDrawH);
+                ctx.drawImage(state.imageEl, 0, 0, state.imageEl.naturalWidth, state.imageEl.naturalHeight, imagePad, imagePad, imageDrawW, imageDrawH);
             }
             
-            // Apply the film filter using the proper function
-            applyFilmFilter(tempCtx, filterName, state.filmStrength || 70);
-            
-            // Draw the filtered image back
-            ctx.drawImage(tempCanvas, 0, 0, imageDrawW, imageDrawH, imagePad, imagePad, imageDrawW, imageDrawH);
+            // Skip grain effect for performance - can be added as CSS filter later
             
             ctx.restore();
         }
