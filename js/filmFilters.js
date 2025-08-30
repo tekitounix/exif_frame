@@ -244,12 +244,16 @@ function applyGrain(data, width, height, amount, size) {
     const grainData = grainCtx.createImageData(grainCanvas.width, grainCanvas.height);
     const grain = grainData.data;
     
-    // Generate grain
+    // Generate grain with per-channel noise for more natural appearance
     for (let i = 0; i < grain.length; i += 4) {
-        const noise = (Math.random() - 0.5) * amount * 512;
-        grain[i] = 128 + noise;
-        grain[i + 1] = 128 + noise;
-        grain[i + 2] = 128 + noise;
+        // Different noise amount per channel for more film-like grain
+        const noiseR = (Math.random() - 0.5) * amount * 512;
+        const noiseG = (Math.random() - 0.5) * amount * 512;
+        const noiseB = (Math.random() - 0.5) * amount * 512;
+        
+        grain[i] = 128 + noiseR;
+        grain[i + 1] = 128 + noiseG * 0.95; // Slightly less green
+        grain[i + 2] = 128 + noiseB * 0.9;  // Even less blue
         grain[i + 3] = 255;
     }
     
@@ -261,17 +265,37 @@ function applyGrain(data, width, height, amount, size) {
         scaledCanvas.width = width;
         scaledCanvas.height = height;
         const scaledCtx = scaledCanvas.getContext('2d');
-        scaledCtx.imageSmoothingEnabled = false;
+        // Enable smoothing for more natural grain appearance
+        scaledCtx.imageSmoothingEnabled = true;
+        scaledCtx.imageSmoothingQuality = 'low';
         scaledCtx.drawImage(grainCanvas, 0, 0, width, height);
         
         const scaledData = scaledCtx.getImageData(0, 0, width, height).data;
         
-        // Apply grain using overlay blend mode
+        // Apply grain using overlay blend mode with slight variation
         for (let i = 0; i < data.length; i += 4) {
-            const grainValue = scaledData[i] - 128;
-            data[i] = Math.min(255, Math.max(0, data[i] + grainValue));
-            data[i + 1] = Math.min(255, Math.max(0, data[i + 1] + grainValue));
-            data[i + 2] = Math.min(255, Math.max(0, data[i + 2] + grainValue));
+            const grainR = scaledData[i] - 128;
+            const grainG = scaledData[i + 1] - 128;
+            const grainB = scaledData[i + 2] - 128;
+            
+            // Overlay blend mode calculation
+            if (data[i] < 128) {
+                data[i] = Math.min(255, Math.max(0, data[i] + grainR * (data[i] / 128)));
+            } else {
+                data[i] = Math.min(255, Math.max(0, data[i] + grainR * ((255 - data[i]) / 128)));
+            }
+            
+            if (data[i + 1] < 128) {
+                data[i + 1] = Math.min(255, Math.max(0, data[i + 1] + grainG * (data[i + 1] / 128)));
+            } else {
+                data[i + 1] = Math.min(255, Math.max(0, data[i + 1] + grainG * ((255 - data[i + 1]) / 128)));
+            }
+            
+            if (data[i + 2] < 128) {
+                data[i + 2] = Math.min(255, Math.max(0, data[i + 2] + grainB * (data[i + 2] / 128)));
+            } else {
+                data[i + 2] = Math.min(255, Math.max(0, data[i + 2] + grainB * ((255 - data[i + 2]) / 128)));
+            }
         }
     }
 }

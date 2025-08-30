@@ -951,8 +951,29 @@ function renderCanvas() {
             tempCanvas.height = imageDrawH;
             const tempCtx = tempCanvas.getContext('2d');
             
-            // Copy image area to temp canvas
-            tempCtx.drawImage(canvas, imagePad, imagePad, imageDrawW, imageDrawH, 0, 0, imageDrawW, imageDrawH);
+            // Draw from the original image source, not from the canvas
+            if (state.frameOrientation) {
+                // When frame orientation is rotated, use the same cropping logic
+                const srcAspect = state.imageEl.naturalWidth / state.imageEl.naturalHeight;
+                const dstAspect = imageDrawW / imageDrawH;
+                
+                let srcX = 0, srcY = 0, srcW = state.imageEl.naturalWidth, srcH = state.imageEl.naturalHeight;
+                
+                if (srcAspect > dstAspect) {
+                    // Source is wider - crop left and right
+                    srcW = state.imageEl.naturalHeight * dstAspect;
+                    srcX = (state.imageEl.naturalWidth - srcW) / 2;
+                } else {
+                    // Source is taller - crop top and bottom
+                    srcH = state.imageEl.naturalWidth / dstAspect;
+                    srcY = (state.imageEl.naturalHeight - srcH) / 2;
+                }
+                
+                tempCtx.drawImage(state.imageEl, srcX, srcY, srcW, srcH, 0, 0, imageDrawW, imageDrawH);
+            } else {
+                // Normal drawing - draw from original image
+                tempCtx.drawImage(state.imageEl, 0, 0, state.imageEl.naturalWidth, state.imageEl.naturalHeight, 0, 0, imageDrawW, imageDrawH);
+            }
             
             // Apply the film filter using the proper function
             applyFilmFilter(tempCtx, filterName, state.filmStrength || 70);
